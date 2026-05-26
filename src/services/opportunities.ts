@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+const supabase = createClientComponentClient()
 import type { Opportunity, OpportunityRecommendation } from '@/types'
 
 export const opportunityService = {

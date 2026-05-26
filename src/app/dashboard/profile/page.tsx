@@ -1,249 +1,202 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
-import { Edit2, Save, X } from 'lucide-react'
+import { Edit2, Save, X, Sparkles } from 'lucide-react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 }
 
 const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
+  animate: { transition: { staggerChildren: 0.1 } },
 }
 
 interface UserProfile {
   name: string
   email: string
-  yearOfStudy: string
-  techStack: string[]
+  year_of_study: string
+  tech_stack: string[]
   interests: string[]
-  currentLearningPhase: string
-  biggestStruggle: string
-  dreamRole: string
-  currentProject: string
-  confidenceLevel: number
-}
-
-const MOCK_PROFILE: UserProfile = {
-  name: 'Rahul Kumar',
-  email: 'rahul@example.com',
-  yearOfStudy: '3rd Year',
-  techStack: ['JavaScript', 'React', 'Node.js', 'MongoDB'],
-  interests: ['Web Development', 'Startups'],
-  currentLearningPhase: 'Building my first projects',
-  biggestStruggle: 'Overwhelmed by too many resources, getting stuck in tutorial loop',
-  dreamRole: 'Full-stack engineer at a startup',
-  currentProject: 'Study group platform for hackathon',
-  confidenceLevel: 6,
+  learning_phase: string
+  biggest_struggle: string
+  dream_role: string
+  current_project: string
+  confidence_level: number
 }
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
-  const [profile, setProfile] = useState<UserProfile>(MOCK_PROFILE)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const supabase = createClientComponentClient()
 
-  const handleSave = () => {
+  useEffect(() => {
+    loadProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const loadProfile = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const { data } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single()
+    if (data) {
+      setProfile({
+        name: data.name || '',
+        email: session.user.email || '',
+        year_of_study: data.year_of_study || '',
+        tech_stack: data.tech_stack || [],
+        interests: data.interests || [],
+        learning_phase: data.learning_phase || '',
+        biggest_struggle: data.biggest_struggle || '',
+        dream_role: data.dream_role || '',
+        current_project: data.current_project || '',
+        confidence_level: data.confidence_level || 5,
+      })
+    }
+    setLoading(false)
+  }
+
+  const handleSave = async () => {
+    if (!profile) return
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    await supabase.from('profiles').update({
+      name: profile.name,
+      year_of_study: profile.year_of_study,
+      tech_stack: profile.tech_stack,
+      interests: profile.interests,
+      learning_phase: profile.learning_phase,
+      biggest_struggle: profile.biggest_struggle,
+      dream_role: profile.dream_role,
+      current_project: profile.current_project,
+      confidence_level: profile.confidence_level,
+    }).eq('user_id', session.user.id)
     setIsEditing(false)
-    // TODO: Save to Supabase
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-sm text-muted-foreground">Complete onboarding to set up your profile.</p>
+      </div>
+    )
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <motion.div
-        className="mx-auto max-w-4xl space-y-6 p-6"
-        initial="initial"
-        animate="animate"
-        variants={staggerContainer}
-      >
-        {/* Header */}
-        <motion.div variants={fadeInUp} className="flex items-center justify-between">
+    <div className="mx-auto max-w-3xl space-y-6 p-6">
+      <motion.div initial="initial" animate="animate" variants={staggerContainer}>
+        <motion.div variants={fadeInUp} className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Your Profile</h1>
-            <p className="text-muted-foreground">
-              Manage your engineering journey and preferences
-            </p>
+            <h1 className="text-xl font-semibold tracking-tight">Profile</h1>
+            <p className="text-sm text-muted-foreground">Manage your engineering journey</p>
           </div>
           <Button
             variant={isEditing ? 'outline' : 'default'}
-            onClick={() => setIsEditing(!isEditing)}
-            className="gap-2"
+            onClick={() => isEditing ? setIsEditing(false) : setIsEditing(true)}
+            size="sm"
+            className="gap-1.5"
           >
-            {isEditing ? (
-              <>
-                <X className="h-4 w-4" />
-                Cancel
-              </>
-            ) : (
-              <>
-                <Edit2 className="h-4 w-4" />
-                Edit
-              </>
-            )}
+            {isEditing ? <X className="h-3.5 w-3.5" /> : <Edit2 className="h-3.5 w-3.5" />}
+            {isEditing ? 'Cancel' : 'Edit'}
           </Button>
         </motion.div>
 
-        {/* Personal Info */}
         <motion.div variants={fadeInUp}>
           <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="text-base">Personal</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Full Name</label>
-                <Input
-                  value={profile.name}
-                  onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                  disabled={!isEditing}
-                  className="mt-1"
-                />
+                <label className="text-xs text-muted-foreground font-medium">Name</label>
+                <Input value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} disabled={!isEditing} className="mt-1" />
               </div>
               <div>
-                <label className="text-sm font-medium">Email</label>
-                <Input
-                  value={profile.email}
-                  disabled={true}
-                  className="mt-1"
-                />
+                <label className="text-xs text-muted-foreground font-medium">Email</label>
+                <Input value={profile.email} disabled className="mt-1" />
               </div>
               <div>
-                <label className="text-sm font-medium">Year of Study</label>
-                <Input
-                  value={profile.yearOfStudy}
-                  onChange={(e) => setProfile({ ...profile, yearOfStudy: e.target.value })}
-                  disabled={!isEditing}
-                  className="mt-1"
-                />
+                <label className="text-xs text-muted-foreground font-medium">Year of Study</label>
+                <Input value={profile.year_of_study} onChange={(e) => setProfile({ ...profile, year_of_study: e.target.value })} disabled={!isEditing} className="mt-1" />
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Technical Profile */}
         <motion.div variants={fadeInUp}>
           <Card>
-            <CardHeader>
-              <CardTitle>Technical Profile</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="text-base">Technical</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Tech Stack</label>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {profile.techStack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary"
-                    >
-                      {tech}
-                    </span>
+                <label className="text-xs text-muted-foreground font-medium">Tech Stack</label>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {profile.tech_stack.map((tech) => (
+                    <span key={tech} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs text-primary">{tech}</span>
                   ))}
                 </div>
               </div>
-
               <div>
-                <label className="text-sm font-medium">Interests</label>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <label className="text-xs text-muted-foreground font-medium">Interests</label>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {profile.interests.map((interest) => (
-                    <span
-                      key={interest}
-                      className="rounded-full bg-secondary/50 px-3 py-1 text-sm text-secondary-foreground"
-                    >
-                      {interest}
-                    </span>
+                    <span key={interest} className="rounded-full bg-muted px-2.5 py-0.5 text-xs">{interest}</span>
                   ))}
                 </div>
               </div>
-
               <div>
-                <label className="text-sm font-medium">Current Learning Phase</label>
-                <p className="mt-2 text-sm text-muted-foreground">{profile.currentLearningPhase}</p>
+                <label className="text-xs text-muted-foreground font-medium">Learning Phase</label>
+                <p className="mt-0.5 text-sm">{profile.learning_phase}</p>
               </div>
-
               <div>
-                <label className="text-sm font-medium">Technical Confidence Level</label>
-                <div className="mt-2 space-y-2">
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={profile.confidenceLevel}
-                    onChange={(e) =>
-                      setProfile({ ...profile, confidenceLevel: parseInt(e.target.value) })
-                    }
+                <label className="text-xs text-muted-foreground font-medium">Confidence</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input type="range" min="1" max="10" value={profile.confidence_level}
+                    onChange={(e) => setProfile({ ...profile, confidence_level: parseInt(e.target.value) })}
                     disabled={!isEditing}
-                    className="h-2 w-full cursor-pointer rounded-lg bg-border/40"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>1 - Just starting</span>
-                    <span>Current: {profile.confidenceLevel}</span>
-                    <span>10 - Very confident</span>
-                  </div>
+                    className="h-1.5 w-full max-w-xs cursor-pointer rounded-full bg-muted accent-primary" />
+                  <span className="text-xs text-muted-foreground">{profile.confidence_level}/10</span>
                 </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Goals & Struggles */}
         <motion.div variants={fadeInUp}>
           <Card>
-            <CardHeader>
-              <CardTitle>Goals & Challenges</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="text-base">Goals & Challenges</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Dream Role</label>
-                <p className="mt-2 text-sm text-muted-foreground">{profile.dreamRole}</p>
+                <label className="text-xs text-muted-foreground font-medium">Dream Role</label>
+                <p className="mt-0.5 text-sm">{profile.dream_role}</p>
               </div>
-
               <div>
-                <label className="text-sm font-medium">Current Project</label>
-                <p className="mt-2 text-sm text-muted-foreground">{profile.currentProject}</p>
+                <label className="text-xs text-muted-foreground font-medium">Current Project</label>
+                <p className="mt-0.5 text-sm">{profile.current_project}</p>
               </div>
-
               <div>
-                <label className="text-sm font-medium">Biggest Struggle</label>
-                <p className="mt-2 text-sm text-muted-foreground">{profile.biggestStruggle}</p>
+                <label className="text-xs text-muted-foreground font-medium">Biggest Struggle</label>
+                <p className="mt-0.5 text-sm text-muted-foreground">{profile.biggest_struggle}</p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Account Settings */}
-        <motion.div variants={fadeInUp}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full">
-                Change Password
-              </Button>
-              <Button variant="outline" className="w-full">
-                Download My Data
-              </Button>
-              <Button variant="destructive" className="w-full">
-                Delete Account
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Save button */}
         {isEditing && (
-          <motion.div variants={fadeInUp} className="flex gap-2">
-            <Button onClick={handleSave} className="gap-2 flex-1">
-              <Save className="h-4 w-4" />
-              Save Changes
+          <motion.div variants={fadeInUp}>
+            <Button onClick={handleSave} className="w-full gap-1.5">
+              <Save className="h-3.5 w-3.5" /> Save Changes
             </Button>
           </motion.div>
         )}

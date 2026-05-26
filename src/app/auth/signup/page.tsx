@@ -5,99 +5,163 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Chrome } from 'lucide-react'
+import { Chrome, Mail, Lock, User, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useAuth } from '@/lib/auth-content'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 }
 
 export default function SignUp() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { signUp, signInWithGoogle } = useAuth()
 
-  const handleGoogleSignUp = () => {
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
     setIsLoading(true)
-    // TODO: Implement Google sign-up with Supabase
-    setTimeout(() => setIsLoading(false), 2000)
+    try {
+      await signUp(email, password, name)
+    } catch {
+      setError('Failed to create account. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
-    <div className="relative min-h-screen bg-background">
-      {/* Background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-transparent to-transparent dark:from-blue-950/20" />
+    <div className="relative min-h-screen">
+      <div className="flex min-h-screen items-center justify-center px-4 py-12">
+        <motion.div
+          className="w-full max-w-sm"
+          initial="initial"
+          animate="animate"
+          variants={{
+            animate: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+          }}
+        >
+          <motion.div variants={fadeInUp} className="mb-8 text-center">
+            <Link href="/" className="inline-flex items-center gap-2">
+              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-sage-600 to-sage-700 shadow-lg" />
+              <span className="text-xl font-semibold tracking-tight">Northstar</span>
+            </Link>
+          </motion.div>
 
-      <motion.div
-        className="flex min-h-screen items-center justify-center px-4"
-        initial="initial"
-        animate="animate"
-        variants={{
-          animate: {
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.2,
-            },
-          },
-        }}
-      >
-        <motion.div className="w-full max-w-md" variants={fadeInUp}>
-          {/* Logo */}
-          <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700" />
-            <span className="text-lg font-semibold">Northstar</span>
-          </Link>
+          <motion.div variants={fadeInUp}>
+            <Card>
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-xl">Create your account</CardTitle>
+                <CardDescription>Start your engineering journey</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                <Button
+                  onClick={signInWithGoogle}
+                  disabled={isLoading}
+                  variant="outline"
+                  className="w-full gap-2"
+                  size="lg"
+                >
+                  <Chrome className="h-4 w-4" />
+                  Continue with Google
+                </Button>
 
-          {/* Card */}
-          <Card>
-            <CardHeader className="space-y-2">
-              <CardTitle>Create your account</CardTitle>
-              <CardDescription>Start your engineering journey with Northstar</CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <Button
-                onClick={handleGoogleSignUp}
-                disabled={isLoading}
-                variant="outline"
-                className="w-full gap-2"
-                size="lg"
-              >
-                <Chrome className="h-4 w-4" />
-                {isLoading ? 'Signing up...' : 'Continue with Google'}
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border/40" />
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">or</span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">or</span>
-                </div>
-              </div>
 
-              <div className="space-y-3">
-                <Input type="text" placeholder="Full Name" disabled={isLoading} />
-                <Input type="email" placeholder="Email" disabled={isLoading} />
-                <Input type="password" placeholder="Password" disabled={isLoading} />
-                <Input type="password" placeholder="Confirm Password" disabled={isLoading} />
-              </div>
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
 
-              <Button className="w-full" disabled={isLoading} size="lg">
-                {isLoading ? 'Creating account...' : 'Sign Up'}
-              </Button>
-            </CardContent>
-          </Card>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Full name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      disabled={isLoading}
+                      className="pl-9"
+                      required
+                    />
+                  </div>
 
-          {/* Sign in link */}
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type="email"
+                      placeholder="you@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={isLoading}
+                      className="pl-9"
+                      required
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type="password"
+                      placeholder="Password (min 6 characters)"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={isLoading}
+                      className="pl-9"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isLoading || !name || !email || !password}
+                    className="w-full gap-2"
+                    size="lg"
+                  >
+                    {isLoading ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <>
+                        Create Account <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.p variants={fadeInUp} className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/auth/signin" className="font-medium hover:underline">
+            <Link href="/auth/signin" className="font-medium text-primary hover:text-primary/80">
               Sign in
             </Link>
-          </p>
+          </motion.p>
         </motion.div>
-      </motion.div>
+      </div>
     </div>
   )
 }

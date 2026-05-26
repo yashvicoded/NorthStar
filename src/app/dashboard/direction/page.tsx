@@ -1,104 +1,124 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
-import { TrendingUp, AlertCircle, Target, BookOpen } from 'lucide-react'
+import { TrendingUp, AlertCircle, Target, BookOpen, Sparkles, RefreshCw } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 }
 
 const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
+  animate: { transition: { staggerChildren: 0.1 } },
 }
 
-export default function DirectionPage() {
-  const weekStart = new Date()
-  weekStart.setDate(weekStart.getDate() - weekStart.getDay())
-  const weekEnd = new Date(weekStart)
-  weekEnd.setDate(weekEnd.getDate() + 6)
+const weekStart = new Date()
+weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+const weekEnd = new Date(weekStart)
+weekEnd.setDate(weekEnd.getDate() + 6)
 
-  const direction = {
-    week: weekStart.toISOString(),
-    priorities: [
-      'Finish the core features of your study group app',
-      'Get comfortable with real-time database interactions',
-      'Deploy a working prototype to get feedback early',
-    ],
-    focusSuggestions: [
-      'Focus on user authentication and group creation first',
-      'Keep the UI minimal but functional - design can come later',
-      'Test with real users by midweek',
-    ],
-    roadmapAdjustments: [
-      'Push the advanced features (algorithms, recommendations) to post-hackathon',
-      'Focus on the core MVP: create group → browse groups → message members',
-    ],
-    projectGoals: [
-      'Have a working signup + login',
-      'Build the "create group" and "browse groups" features',
-      'Implement basic in-app messaging',
-    ],
-    skillRecommendations: [
-      'Socket.io for real-time messaging (do a quick tutorial)',
-      'MongoDB queries for filtering groups',
-    ],
-    productivityWarnings: [
-      'You mentioned perfectionism before - ship imperfect over perfect. Demo wins hackathons, not polish.',
-      'Avoid the tutorial loop. When you get stuck, ship what you have and iterate.',
-    ],
-    nextSteps: [
-      '1. Set up your project skeleton today',
-      '2. Complete auth + basic UI by tomorrow',
-      '3. Build core features by Wednesday',
-      '4. Demo to someone by Thursday for feedback',
-      '5. Polish and deploy Friday',
-    ],
+export default function DirectionPage() {
+  const [direction, setDirection] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [generating, setGenerating] = useState(false)
+  const supabase = createClientComponentClient()
+
+  useEffect(() => {
+    loadDirection()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const loadDirection = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const { data } = await supabase
+      .from('weekly_directions')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+    if (data) setDirection(data)
+    setLoading(false)
+  }
+
+  const generateDirection = async () => {
+    setGenerating(true)
+    try {
+      const res = await fetch('/api/direction', { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json()
+        setDirection(data.direction)
+      }
+    } catch {} finally {
+      setGenerating(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (!direction) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <Sparkles className="mx-auto h-8 w-8 text-muted-foreground/30 mb-3" />
+          <p className="text-sm text-muted-foreground mb-4">No weekly direction yet</p>
+          <Button onClick={generateDirection} disabled={generating} size="sm" className="gap-1.5">
+            <RefreshCw className={cn('h-3.5 w-3.5', generating && 'animate-spin')} />
+            Generate Direction
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <motion.div
-        className="mx-auto max-w-4xl space-y-6 p-6"
-        initial="initial"
-        animate="animate"
-        variants={staggerContainer}
-      >
-        {/* Header */}
-        <motion.div variants={fadeInUp}>
-          <h1 className="text-3xl font-bold">This Week's Direction</h1>
-          <p className="text-muted-foreground">
-            Week of {weekStart.toLocaleDateString()} - {weekEnd.toLocaleDateString()}
-          </p>
+    <div className="mx-auto max-w-3xl space-y-6 p-6">
+      <motion.div initial="initial" animate="animate" variants={staggerContainer}>
+        <motion.div variants={fadeInUp} className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">This Week</h1>
+            <p className="text-sm text-muted-foreground">
+              {weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &mdash;{' '}
+              {weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </p>
+          </div>
+          <Button onClick={generateDirection} disabled={generating} variant="outline" size="sm" className="gap-1.5">
+            <RefreshCw className={cn('h-3.5 w-3.5', generating && 'animate-spin')} />
+            Refresh
+          </Button>
         </motion.div>
 
-        {/* Priorities */}
         <motion.div variants={fadeInUp}>
           <Card>
             <CardHeader>
               <div className="flex items-start gap-3">
-                <Target className="h-5 w-5 text-primary" />
+                <Target className="h-4 w-4 text-primary mt-0.5" />
                 <div>
-                  <CardTitle>Your Priorities</CardTitle>
-                  <CardDescription>Focus on these to move the needle forward</CardDescription>
+                  <CardTitle className="text-sm">Priorities</CardTitle>
+                  <CardDescription>Focus on these to move forward</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <ol className="space-y-3">
-                {direction.priorities.map((priority, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+              <ol className="space-y-2">
+                {direction.priorities?.map((p: string, i: number) => (
+                  <li key={i} className="flex gap-3 text-sm">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary flex-shrink-0 mt-0.5">
                       {i + 1}
                     </span>
-                    <span className="pt-1">{priority}</span>
+                    {p}
                   </li>
                 ))}
               </ol>
@@ -106,107 +126,81 @@ export default function DirectionPage() {
           </Card>
         </motion.div>
 
-        {/* Focus Suggestions */}
         <motion.div variants={fadeInUp}>
           <Card>
             <CardHeader>
               <div className="flex items-start gap-3">
-                <TrendingUp className="h-5 w-5 text-primary" />
+                <TrendingUp className="h-4 w-4 text-primary mt-0.5" />
                 <div>
-                  <CardTitle>Focus Areas</CardTitle>
-                  <CardDescription>Where to concentrate your energy</CardDescription>
+                  <CardTitle className="text-sm">Focus Areas</CardTitle>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {direction.focusSuggestions.map((suggestion, i) => (
-                  <div key={i} className="flex gap-3 rounded-lg border border-border/40 bg-muted/50 p-3">
-                    <div className="mt-0.5 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                    <p className="text-sm">{suggestion}</p>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="space-y-2">
+              {direction.focus_suggestions?.map((s: string, i: number) => (
+                <div key={i} className="flex gap-2.5 rounded-lg border p-3">
+                  <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                  <p className="text-sm">{s}</p>
+                </div>
+              ))}
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Skill Recommendations */}
         <motion.div variants={fadeInUp}>
           <Card>
             <CardHeader>
               <div className="flex items-start gap-3">
-                <BookOpen className="h-5 w-5 text-primary" />
+                <BookOpen className="h-4 w-4 text-primary mt-0.5" />
                 <div>
-                  <CardTitle>Skills to Level Up</CardTitle>
-                  <CardDescription>Learn these to unblock your project</CardDescription>
+                  <CardTitle className="text-sm">Skills to Build</CardTitle>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {direction.skillRecommendations.map((skill, i) => (
-                  <div key={i} className="rounded-lg border border-border/40 bg-card p-3">
-                    <p className="text-sm font-medium">{skill}</p>
+            <CardContent className="grid gap-2 sm:grid-cols-2">
+              {direction.skill_recommendations?.map((s: string, i: number) => (
+                <div key={i} className="rounded-lg border p-3 text-sm">{s}</div>
+              ))}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {direction.productivity_warnings?.length > 0 && (
+          <motion.div variants={fadeInUp}>
+            <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-900/30 dark:bg-amber-950/10">
+              <CardHeader>
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
+                  <div>
+                    <CardTitle className="text-sm text-amber-900 dark:text-amber-100">Watch Out For</CardTitle>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Productivity Warnings */}
-        <motion.div variants={fadeInUp}>
-          <Card className="border-amber-200 bg-amber-50 dark:border-amber-900/30 dark:bg-amber-950/10">
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-                <div>
-                  <CardTitle className="text-amber-900 dark:text-amber-100">Watch Out For</CardTitle>
-                  <CardDescription className="text-amber-800 dark:text-amber-200">
-                    Common pitfalls based on your patterns
-                  </CardDescription>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {direction.productivityWarnings.map((warning, i) => (
-                  <p key={i} className="text-sm text-amber-900 dark:text-amber-100">
-                    <strong>•</strong> {warning}
-                  </p>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {direction.productivity_warnings?.map((w: string, i: number) => (
+                  <p key={i} className="text-sm text-amber-800 dark:text-amber-200">&bull; {w}</p>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
-        {/* Next Steps */}
         <motion.div variants={fadeInUp}>
           <Card>
             <CardHeader>
-              <CardTitle>Your Next Steps</CardTitle>
-              <CardDescription>A realistic roadmap for this week</CardDescription>
+              <CardTitle className="text-sm">Next Steps</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {direction.nextSteps.map((step, i) => (
-                  <div key={i} className="flex gap-3 rounded-lg border border-border/40 p-3">
-                    <div className="h-6 w-6 rounded-full bg-primary text-xs font-semibold text-primary-foreground flex items-center justify-center flex-shrink-0">
-                      {i + 1}
-                    </div>
-                    <p className="pt-0.5 text-sm">{step}</p>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="space-y-2">
+              {direction.next_steps?.map((s: string, i: number) => (
+                <div key={i} className="flex gap-3 rounded-lg border p-3 text-sm">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary flex-shrink-0">
+                    {i + 1}
+                  </span>
+                  {s}
+                </div>
+              ))}
             </CardContent>
           </Card>
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div variants={fadeInUp} className="flex gap-3">
-          <Button>Start with Priority #1</Button>
-          <Button variant="outline">Discuss with Mentor</Button>
         </motion.div>
       </motion.div>
     </div>

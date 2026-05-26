@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+const supabase = createClientComponentClient()
 import type { TimelineEvent } from '@/types'
 
 export const timelineService = {
@@ -11,7 +12,8 @@ export const timelineService = {
   async createEvent(userId: string, event: Omit<TimelineEvent, 'id'>): Promise<TimelineEvent> {
     // TODO: Implement Supabase insert
     console.log('Creating timeline event:', { userId, event })
-    return { id: Date.now().toString(), userId, ...event }
+    const { userId: _u, ...eventData } = event
+    return { id: Date.now().toString(), userId, ...eventData }
   },
 
   async deleteEvent(eventId: string) {

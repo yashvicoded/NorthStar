@@ -7,13 +7,13 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TECH_STACK_OPTIONS, LEARNING_PHASE_OPTIONS, INTERESTS_OPTIONS } from '@/constants'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ChevronLeft } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Sparkles, Check } from 'lucide-react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.3 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
 }
 
 interface OnboardingData {
@@ -41,51 +41,15 @@ const INITIAL_DATA: OnboardingData = {
 }
 
 const STEPS = [
-  {
-    id: 'name',
-    title: "What's your name?",
-    subtitle: 'We want to know who we're mentoring.',
-  },
-  {
-    id: 'yearOfStudy',
-    title: 'What year are you in?',
-    subtitle: 'This helps us understand your stage in the journey.',
-  },
-  {
-    id: 'techStack',
-    title: 'What technologies do you know?',
-    subtitle: 'Select all that apply. You can add more later.',
-  },
-  {
-    id: 'interests',
-    title: 'What areas interest you?',
-    subtitle: 'Where do you want to grow?',
-  },
-  {
-    id: 'learningPhase',
-    title: 'Where are you in your journey?',
-    subtitle: 'This helps us give relevant guidance.',
-  },
-  {
-    id: 'biggestStruggle',
-    title: 'What's your biggest struggle right now?',
-    subtitle: 'Be honest. This helps us support you better.',
-  },
-  {
-    id: 'dreamRole',
-    title: 'What's your dream role?',
-    subtitle: 'What does success look like for you?',
-  },
-  {
-    id: 'currentProject',
-    title: 'What are you working on right now?',
-    subtitle: 'Or what do you want to build?',
-  },
-  {
-    id: 'confidenceLevel',
-    title: 'How confident do you feel with your technical skills?',
-    subtitle: '1 = Just starting, 10 = Ready for anything',
-  },
+  { id: 'name', title: "What's your name?", subtitle: 'We want to know who we\u2019re mentoring.' },
+  { id: 'yearOfStudy', title: 'What year are you in?', subtitle: 'This helps us understand your stage.' },
+  { id: 'techStack', title: 'What technologies do you know?', subtitle: 'Select all that apply.' },
+  { id: 'interests', title: 'What areas interest you?', subtitle: 'Where do you want to grow?' },
+  { id: 'learningPhase', title: 'Where are you in your journey?', subtitle: 'This helps us give relevant guidance.' },
+  { id: 'biggestStruggle', title: "What's your biggest struggle right now?", subtitle: 'Be honest. This helps us support you better.' },
+  { id: 'dreamRole', title: "What's your dream role?", subtitle: 'What does success look like for you?' },
+  { id: 'currentProject', title: 'What are you working on?', subtitle: 'Or what do you want to build?' },
+  { id: 'confidenceLevel', title: 'How confident do you feel?', subtitle: '1 = Just starting, 10 = Ready for anything' },
 ]
 
 export default function Onboarding() {
@@ -93,20 +57,38 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0)
   const [data, setData] = useState<OnboardingData>(INITIAL_DATA)
   const [isLoading, setIsLoading] = useState(false)
+  const [showSnapshot, setShowSnapshot] = useState(false)
+  const supabase = createClientComponentClient()
 
   const step = STEPS[currentStep]
   const progress = ((currentStep + 1) / STEPS.length) * 100
 
   const handleNext = async () => {
     if (currentStep === STEPS.length - 1) {
-      // Save data and redirect
+      setShowSnapshot(true)
       setIsLoading(true)
       try {
-        // TODO: Save to Supabase
-        console.log('Onboarding data:', data)
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) throw new Error('Not authenticated')
+
+        const { error } = await supabase.from('profiles').upsert({
+          user_id: session.user.id,
+          name: data.name,
+          year_of_study: data.yearOfStudy,
+          tech_stack: data.techStack,
+          interests: data.interests,
+          learning_phase: data.learningPhase,
+          biggest_struggle: data.biggestStruggle,
+          dream_role: data.dreamRole,
+          current_project: data.currentProject,
+          confidence_level: data.confidenceLevel,
+          onboarding_completed: true,
+        })
+
+        if (error) throw error
+        await new Promise((r) => setTimeout(r, 1500))
         router.push('/dashboard')
-      } catch (error) {
-        console.error('Error saving onboarding:', error)
+      } catch {
         setIsLoading(false)
       }
     } else {
@@ -114,104 +96,150 @@ export default function Onboarding() {
     }
   }
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
+  const isStepValid = () => {
+    switch (step.id) {
+      case 'name': return data.name.trim().length > 0
+      case 'yearOfStudy': return data.yearOfStudy.length > 0
+      case 'techStack': return data.techStack.length > 0
+      case 'interests': return data.interests.length > 0
+      case 'learningPhase': return data.learningPhase.length > 0
+      case 'biggestStruggle': return data.biggestStruggle.trim().length > 0
+      case 'dreamRole': return data.dreamRole.trim().length > 0
+      case 'currentProject': return data.currentProject.trim().length > 0
+      default: return true
     }
   }
 
-  const isStepValid = () => {
-    switch (step.id) {
-      case 'name':
-        return data.name.trim().length > 0
-      case 'yearOfStudy':
-        return data.yearOfStudy.length > 0
-      case 'techStack':
-        return data.techStack.length > 0
-      case 'interests':
-        return data.interests.length > 0
-      case 'learningPhase':
-        return data.learningPhase.length > 0
-      case 'biggestStruggle':
-        return data.biggestStruggle.trim().length > 0
-      case 'dreamRole':
-        return data.dreamRole.trim().length > 0
-      case 'currentProject':
-        return data.currentProject.trim().length > 0
-      default:
-        return true
-    }
+  if (showSnapshot) {
+    return (
+      <div className="relative min-h-screen flex items-center justify-center px-4">
+        <motion.div
+          className="w-full max-w-md text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+            {isLoading ? (
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            ) : (
+              <Check className="h-6 w-6 text-primary" />
+            )}
+          </div>
+
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">Your Journey Snapshot</h1>
+          <p className="text-sm text-muted-foreground mb-8">Here&apos;s what we know about you</p>
+
+          <Card className="text-left">
+            <CardContent className="pt-6 space-y-4">
+              <div className="flex items-center gap-3 pb-4 border-b">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                  {data.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-medium">{data.name}</p>
+                  <p className="text-xs text-muted-foreground">{data.yearOfStudy} &middot; {data.dreamRole}</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Stack</p>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {data.techStack.map((t) => (
+                      <span key={t} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs text-primary">{t}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Interests</p>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {data.interests.map((i) => (
+                      <span key={i} className="rounded-full bg-muted px-2.5 py-0.5 text-xs">{i}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Current Project</p>
+                  <p className="mt-0.5 text-sm">{data.currentProject}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Confidence</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${data.confidenceLevel * 10}%` }} />
+                    </div>
+                    <span className="text-xs text-muted-foreground">{data.confidenceLevel}/10</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <p className="mt-6 text-sm text-muted-foreground">
+            {isLoading ? 'Setting up your mentorship experience...' : 'Redirecting to your dashboard...'}
+          </p>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
-    <div className="relative min-h-screen bg-background">
-      {/* Background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-transparent to-transparent dark:from-blue-950/20" />
-
+    <div className="relative min-h-screen">
       <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12">
         <motion.div
-          className="w-full max-w-2xl"
+          className="w-full max-w-lg"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
         >
-          {/* Header */}
           <div className="mb-8">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700" />
-              <span className="font-semibold">Northstar</span>
+            <div className="mb-6 flex items-center gap-2.5">
+              <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-sage-500 to-sage-700 flex items-center justify-center">
+                <Sparkles className="h-3 w-3 text-white" />
+              </div>
+              <span className="text-sm font-semibold tracking-tight">Northstar</span>
             </div>
-            <h1 className="text-3xl font-bold">Let's get to know you</h1>
-            <p className="mt-2 text-muted-foreground">
-              This helps us personalize your mentorship experience.
-            </p>
+            <h1 className="text-2xl font-semibold tracking-tight">Let&apos;s get to know you</h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">This helps us personalize your mentorship.</p>
           </div>
 
-          {/* Progress bar */}
-          <div className="mb-8 h-1 rounded-full bg-border/40">
+          <div className="mb-8 h-1 rounded-full bg-muted overflow-hidden">
             <motion.div
-              className="h-full bg-primary rounded-full"
+              className="h-full rounded-full bg-primary"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4 }}
             />
           </div>
 
-          {/* Steps */}
           <AnimatePresence mode="wait">
-            <motion.div
-              key={step.id}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              variants={fadeInUp}
-            >
+            <motion.div key={step.id} {...fadeInUp}>
               <Card>
                 <CardHeader>
-                  <CardTitle>{step.title}</CardTitle>
+                  <CardTitle className="text-lg">{step.title}</CardTitle>
                   <CardDescription>{step.subtitle}</CardDescription>
                 </CardHeader>
-
-                <CardContent className="space-y-6">
-                  {/* Step content */}
+                <CardContent className="space-y-5">
                   {step.id === 'name' && (
                     <Input
-                      placeholder="Enter your name"
+                      placeholder="Your name"
                       value={data.name}
                       onChange={(e) => setData({ ...data, name: e.target.value })}
-                      className="text-lg"
                       autoFocus
                     />
                   )}
 
                   {step.id === 'yearOfStudy' && (
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-3 gap-2">
                       {['1st', '2nd', '3rd', '4th', 'Graduated', 'Other'].map((year) => (
                         <Button
                           key={year}
                           variant={data.yearOfStudy === year ? 'default' : 'outline'}
                           onClick={() => setData({ ...data, yearOfStudy: year })}
-                          className="h-12"
+                          size="sm"
                         >
                           {year}
                         </Button>
@@ -220,63 +248,57 @@ export default function Onboarding() {
                   )}
 
                   {step.id === 'techStack' && (
-                    <div className="grid gap-2">
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                        {TECH_STACK_OPTIONS.map((tech) => (
-                          <Button
-                            key={tech}
-                            variant={data.techStack.includes(tech) ? 'default' : 'outline'}
-                            onClick={() => {
-                              setData({
-                                ...data,
-                                techStack: data.techStack.includes(tech)
-                                  ? data.techStack.filter((t) => t !== tech)
-                                  : [...data.techStack, tech],
-                              })
-                            }}
-                            size="sm"
-                            className="text-xs"
-                          >
-                            {tech}
-                          </Button>
-                        ))}
-                      </div>
+                    <div className="flex flex-wrap gap-2">
+                      {TECH_STACK_OPTIONS.map((tech) => (
+                        <Button
+                          key={tech}
+                          variant={data.techStack.includes(tech) ? 'default' : 'outline'}
+                          onClick={() =>
+                            setData({
+                              ...data,
+                              techStack: data.techStack.includes(tech)
+                                ? data.techStack.filter((t) => t !== tech)
+                                : [...data.techStack, tech],
+                            })
+                          }
+                          size="sm"
+                        >
+                          {tech}
+                        </Button>
+                      ))}
                     </div>
                   )}
 
                   {step.id === 'interests' && (
-                    <div className="grid gap-2">
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                        {INTERESTS_OPTIONS.map((interest) => (
-                          <Button
-                            key={interest}
-                            variant={data.interests.includes(interest) ? 'default' : 'outline'}
-                            onClick={() => {
-                              setData({
-                                ...data,
-                                interests: data.interests.includes(interest)
-                                  ? data.interests.filter((i) => i !== interest)
-                                  : [...data.interests, interest],
-                              })
-                            }}
-                            size="sm"
-                            className="text-xs"
-                          >
-                            {interest}
-                          </Button>
-                        ))}
-                      </div>
+                    <div className="flex flex-wrap gap-2">
+                      {INTERESTS_OPTIONS.map((interest) => (
+                        <Button
+                          key={interest}
+                          variant={data.interests.includes(interest) ? 'default' : 'outline'}
+                          onClick={() =>
+                            setData({
+                              ...data,
+                              interests: data.interests.includes(interest)
+                                ? data.interests.filter((i) => i !== interest)
+                                : [...data.interests, interest],
+                            })
+                          }
+                          size="sm"
+                        >
+                          {interest}
+                        </Button>
+                      ))}
                     </div>
                   )}
 
                   {step.id === 'learningPhase' && (
-                    <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="grid gap-2">
                       {LEARNING_PHASE_OPTIONS.map((phase) => (
                         <Button
                           key={phase}
                           variant={data.learningPhase === phase ? 'default' : 'outline'}
                           onClick={() => setData({ ...data, learningPhase: phase })}
-                          className="justify-start text-left text-xs sm:text-sm"
+                          className="justify-start text-left"
                         >
                           {phase}
                         </Button>
@@ -286,17 +308,17 @@ export default function Onboarding() {
 
                   {step.id === 'biggestStruggle' && (
                     <textarea
-                      placeholder="Tell us what's challenging you right now..."
+                      placeholder="What's challenging you right now?"
                       value={data.biggestStruggle}
                       onChange={(e) => setData({ ...data, biggestStruggle: e.target.value })}
-                      className="min-h-24 rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="min-h-24 w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                       autoFocus
                     />
                   )}
 
                   {step.id === 'dreamRole' && (
                     <Input
-                      placeholder="E.g., Full-stack engineer at a startup, ML researcher, etc."
+                      placeholder="e.g. Full-stack engineer, ML researcher..."
                       value={data.dreamRole}
                       onChange={(e) => setData({ ...data, dreamRole: e.target.value })}
                       autoFocus
@@ -308,7 +330,7 @@ export default function Onboarding() {
                       placeholder="Describe what you're working on..."
                       value={data.currentProject}
                       onChange={(e) => setData({ ...data, currentProject: e.target.value })}
-                      className="min-h-24 rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="min-h-24 w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                       autoFocus
                     />
                   )}
@@ -316,9 +338,7 @@ export default function Onboarding() {
                   {step.id === 'confidenceLevel' && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Confidence: <span className="font-bold text-foreground">{data.confidenceLevel}</span>
-                        </span>
+                        <span className="text-sm">Confidence: <strong>{data.confidenceLevel}</strong></span>
                       </div>
                       <input
                         type="range"
@@ -326,7 +346,7 @@ export default function Onboarding() {
                         max="10"
                         value={data.confidenceLevel}
                         onChange={(e) => setData({ ...data, confidenceLevel: parseInt(e.target.value) })}
-                        className="h-2 w-full cursor-pointer rounded-lg bg-border/40"
+                        className="h-2 w-full cursor-pointer rounded-full bg-muted accent-primary"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>Just starting</span>
@@ -339,31 +359,25 @@ export default function Onboarding() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation */}
-          <div className="mt-8 flex gap-4">
+          <div className="mt-6 flex gap-3">
             <Button
               variant="outline"
-              onClick={handleBack}
+              onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
               disabled={currentStep === 0}
-              size="lg"
-              className="gap-2"
+              className="gap-1.5"
             >
-              <ChevronLeft className="h-4 w-4" />
-              Back
+              <ChevronLeft className="h-3.5 w-3.5" /> Back
             </Button>
-
             <Button
               onClick={handleNext}
               disabled={!isStepValid() || isLoading}
-              size="lg"
-              className="flex-1 gap-2"
+              className="flex-1 gap-1.5"
             >
-              {isLoading ? 'Creating your profile...' : currentStep === STEPS.length - 1 ? 'Complete' : 'Next'}
-              <ChevronRight className="h-4 w-4" />
+              {currentStep === STEPS.length - 1 ? 'Finish' : 'Next'}
+              <ChevronRight className="h-3.5 w-3.5" />
             </Button>
           </div>
 
-          {/* Progress text */}
           <p className="mt-4 text-center text-xs text-muted-foreground">
             Step {currentStep + 1} of {STEPS.length}
           </p>

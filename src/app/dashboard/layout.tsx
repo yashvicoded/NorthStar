@@ -3,10 +3,23 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MessageSquare, TrendingUp, Zap, User, Calendar, ChevronDown, LogOut } from 'lucide-react'
+import {
+  MessageSquare,
+  TrendingUp,
+  Zap,
+  User,
+  Calendar,
+  ChevronDown,
+  LogOut,
+  Moon,
+  Sun,
+  Sparkles,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
+import { useAuth } from '@/lib/auth-content'
+import { useEffect } from 'react'
 
 const NAVIGATION_ITEMS = [
   { label: 'Mentor', href: '/dashboard/mentor', icon: MessageSquare },
@@ -16,80 +29,89 @@ const NAVIGATION_ITEMS = [
   { label: 'Profile', href: '/dashboard/profile', icon: User },
 ]
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [mounted, setMounted] = useState(false)
+  const { user, signOut } = useAuth()
+
+  useEffect(() => setMounted(true), [])
+
+  const toggleTheme = () => {
+    const html = document.documentElement
+    const isDark = html.classList.toggle('dark')
+    localStorage.setItem('northstar-theme', isDark ? 'dark' : 'light')
+  }
+
+  const isDark = mounted && document.documentElement.classList.contains('dark')
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar */}
       <motion.div
         className={cn(
-          'border-r border-border/40 bg-card transition-all duration-300',
-          sidebarOpen ? 'w-64' : 'w-20'
+          'border-r bg-card transition-all duration-300 flex flex-col',
+          sidebarOpen ? 'w-60' : 'w-16'
         )}
+        layout
       >
-        <div className="flex h-full flex-col">
-          {/* Logo */}
-          <div className="flex items-center justify-between border-b border-border/40 px-4 py-6">
-            <motion.div
-              className="flex items-center gap-2"
-              animate={{ opacity: sidebarOpen ? 1 : 0 }}
-              transition={{ duration: 0.2 }}
+        <div className="flex items-center justify-between border-b px-4 py-5">
+          <motion.div
+            className="flex items-center gap-2"
+            animate={{ opacity: sidebarOpen ? 1 : 0 }}
+          >
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-sage-500 to-sage-700 flex items-center justify-center">
+              <Sparkles className="h-3.5 w-3.5 text-white" />
+            </div>
+            {sidebarOpen && <span className="text-sm font-semibold tracking-tight">Northstar</span>}
+          </motion.div>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', sidebarOpen && '-rotate-90')} />
+          </Button>
+        </div>
+
+        <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
+          {NAVIGATION_ITEMS.map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+            return (
+              <Link key={item.href} href={item.href}>
+                <div
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                    isActive
+                      ? 'bg-primary/10 text-primary font-medium'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
+                >
+                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  {sidebarOpen && <span>{item.label}</span>}
+                </div>
+              </Link>
+            )
+          })}
+        </nav>
+
+        <div className="border-t px-2 py-4 space-y-1">
+          {mounted && (
+            <button
+              onClick={toggleTheme}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700" />
-              {sidebarOpen && <span className="font-semibold">Northstar</span>}
-            </motion.div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <ChevronDown className={cn(
-                'h-4 w-4 transition-transform',
-                sidebarOpen ? 'rotate-90' : 'rotate-0'
-              )} />
-            </Button>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 space-y-2 overflow-y-auto px-2 py-4">
-            {NAVIGATION_ITEMS.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href
-
-              return (
-                <Link key={item.href} href={item.href}>
-                  <Button
-                    variant={isActive ? 'default' : 'ghost'}
-                    className={cn('w-full justify-start', !sidebarOpen && 'px-0')}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {sidebarOpen && <span className="ml-2">{item.label}</span>}
-                  </Button>
-                </Link>
-              )
-            })}
-          </nav>
-
-          {/* User section */}
-          <div className="border-t border-border/40 px-2 py-4">
-            <Button variant="ghost" className={cn('w-full justify-start', !sidebarOpen && 'px-0')}>
-              <LogOut className="h-4 w-4" />
-              {sidebarOpen && <span className="ml-2 text-xs">Sign Out</span>}
-            </Button>
-          </div>
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {sidebarOpen && <span>{isDark ? 'Light mode' : 'Dark mode'}</span>}
+            </button>
+          )}
+          <button
+            onClick={signOut}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            {sidebarOpen && <span>Sign out</span>}
+          </button>
         </div>
       </motion.div>
 
-      {/* Main content */}
-      <div className="flex-1 overflow-y-auto">
-        {children}
-      </div>
+      <div className="flex-1 overflow-y-auto">{children}</div>
     </div>
   )
 }

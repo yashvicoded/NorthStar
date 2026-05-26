@@ -7,8 +7,7 @@ import { motion } from 'framer-motion'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 }
 
 const staggerContainer = {
@@ -28,7 +27,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700" />
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-sage-500 to-sage-700" />
               <span className="text-lg font-semibold tracking-tight">Northstar</span>
             </div>
             <div className="flex items-center space-x-4">
@@ -37,7 +36,7 @@ export default function Home() {
                   Sign In
                 </Button>
               </Link>
-              <Link href="/auth/signin">
+              <Link href="/auth/signup">
                 <Button size="sm">Get Started</Button>
               </Link>
             </div>
@@ -47,7 +46,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden px-4 py-24 sm:py-32 lg:py-40">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-transparent to-transparent dark:from-blue-950/20" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-sage-50 via-transparent to-transparent dark:from-sage-950/20" />
 
         <motion.div
           className="mx-auto max-w-4xl text-center"
@@ -71,7 +70,7 @@ export default function Home() {
           </motion.p>
 
           <motion.div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center" variants={fadeInUp}>
-            <Link href="/auth/signin">
+            <Link href="/auth/signup">
               <Button size="lg" className="gap-2">
                 Start Your Journey <ArrowRight className="h-4 w-4" />
               </Button>
@@ -324,7 +323,7 @@ export default function Home() {
           </motion.p>
 
           <motion.div className="mt-8" variants={fadeInUp}>
-            <Link href="/auth/signin">
+            <Link href="/auth/signup">
               <Button size="lg" className="gap-2">
                 Get Started <ArrowRight className="h-4 w-4" />
               </Button>
@@ -338,7 +337,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col items-center justify-between gap-8 sm:flex-row">
             <div className="flex items-center space-x-2">
-              <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700" />
+              <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-sage-500 to-sage-700" />
               <span className="font-semibold">Northstar</span>
             </div>
             <p className="text-sm text-muted-foreground">
