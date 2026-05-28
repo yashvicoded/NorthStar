@@ -338,10 +338,6 @@ Future ideas:
 
 ---
 
-# 🚢 Deployment
-
-Deploy instantly with Vercel:
-
 ```bash
 vercel deploy
 ```
