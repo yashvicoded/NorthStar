@@ -35,7 +35,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mounted, setMounted] = useState(false)
   const { user, signOut } = useAuth()
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    setMounted(true)
+    // #region agent log
+    fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+      body: JSON.stringify({
+        sessionId: 'ce31a0',
+        runId: 'pre-fix',
+        hypothesisId: 'H4',
+        location: 'src/app/dashboard/layout.tsx:useEffect',
+        message: 'DashboardLayout mounted (theme snapshot)',
+        data: {
+          localStorageTheme: (() => {
+            try { return localStorage.getItem('northstar-theme') } catch { return 'error' }
+          })(),
+          htmlHasDarkClass: document.documentElement.classList.contains('dark'),
+          pathname,
+          hasUser: Boolean(user),
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+  }, [pathname, user])
 
   const toggleTheme = () => {
     const html = document.documentElement
@@ -49,7 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="flex h-screen overflow-hidden bg-background">
       <motion.div
         className={cn(
-          'border-r bg-card transition-all duration-300 flex flex-col',
+          'm-3 mr-0 flex flex-col rounded-2xl border bg-card transition-all duration-300',
           sidebarOpen ? 'w-60' : 'w-16'
         )}
         layout
@@ -59,7 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="flex items-center gap-2"
             animate={{ opacity: sidebarOpen ? 1 : 0 }}
           >
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-sage-500 to-sage-700 flex items-center justify-center">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
               <Sparkles className="h-3.5 w-3.5 text-white" />
             </div>
             {sidebarOpen && <span className="text-sm font-semibold tracking-tight">Northstar</span>}
@@ -111,7 +135,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </motion.div>
 
-      <div className="flex-1 overflow-y-auto">{children}</div>
+      <div className="flex-1 overflow-y-auto p-3 pl-4">{children}</div>
     </div>
   )
 }

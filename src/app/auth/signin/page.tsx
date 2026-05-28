@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,12 +15,21 @@ const fadeInUp = {
   animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 }
 
-export default function SignIn() {
+function SignInContent() {
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const { signIn, signInWithGoogle } = useAuth()
+
+  useEffect(() => {
+    if (searchParams.get('error') === 'config') {
+      setError(
+        'Supabase is not configured. Copy .env.local.example to .env.local, add your Supabase URL and anon key, then restart the dev server.'
+      )
+    }
+  }, [searchParams])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,8 +37,13 @@ export default function SignIn() {
     setIsLoading(true)
     try {
       await signIn(email, password)
-    } catch {
-      setError('Invalid email or password. Please try again.')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ''
+      if (message.includes('Supabase is not configured')) {
+        setError(message)
+      } else {
+        setError('Invalid email or password. Please try again.')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -144,5 +159,13 @@ export default function SignIn() {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <SignInContent />
+    </Suspense>
   )
 }

@@ -20,9 +20,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  let supabase: ReturnType<typeof createClientComponentClient> | null = null
+  try {
+    supabase = createClientComponentClient()
+  } catch (e) {
+    // #region agent log
+    fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+      body: JSON.stringify({
+        sessionId: 'ce31a0',
+        runId: 'pre-fix',
+        hypothesisId: 'H1',
+        location: 'src/lib/auth-content.tsx:AuthProvider',
+        message: 'Supabase client init failed',
+        data: {
+          hasNextPublicSupabaseUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+          hasNextPublicSupabaseAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+          errorName: (e as any)?.name,
+          errorMessage: (e as any)?.message,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+  }
 
   useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+      body: JSON.stringify({
+        sessionId: 'ce31a0',
+        runId: 'pre-fix',
+        hypothesisId: 'H1',
+        location: 'src/lib/auth-content.tsx:useEffect',
+        message: 'AuthProvider mounted',
+        data: {
+          supabaseClientReady: Boolean(supabase),
+          hasNextPublicSupabaseUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+          hasNextPublicSupabaseAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+
+    if (!supabase) {
+      setIsLoading(false)
+      return
+    }
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null)
@@ -38,14 +86,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [supabase, router])
 
+  const requireSupabase = () => {
+    if (!supabase) {
+      throw new Error(
+        'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local and restart the dev server.'
+      )
+    }
+    return supabase
+  }
+
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const client = requireSupabase()
+    const { error } = await client.auth.signInWithPassword({ email, password })
     if (error) throw error
     router.push('/dashboard')
   }
 
   const signUp = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
+    const client = requireSupabase()
+    const { error } = await client.auth.signUp({
       email,
       password,
       options: { data: { full_name: name } },
@@ -55,7 +114,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const client = requireSupabase()
+    const { error } = await client.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
@@ -63,7 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    const client = requireSupabase()
+    await client.auth.signOut()
     setUser(null)
     router.push('/')
   }

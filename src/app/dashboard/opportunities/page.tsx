@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
-import { ExternalLink, BookmarkPlus, Bookmark, Zap, Sparkles } from 'lucide-react'
+import { ExternalLink, BookmarkPlus, Bookmark } from 'lucide-react'
 import { OPPORTUNITIES } from '@/constants'
 import { cn } from '@/lib/utils'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -16,6 +16,12 @@ const fadeInUp = {
 
 const staggerContainer = {
   animate: { transition: { staggerChildren: 0.1 } },
+}
+
+const difficultyStyles: Record<string, string> = {
+  beginner: 'bg-muted text-muted-foreground',
+  intermediate: 'bg-primary/10 text-primary',
+  advanced: 'bg-primary/20 text-primary font-medium',
 }
 
 export default function OpportunitiesPage() {
@@ -30,8 +36,14 @@ export default function OpportunitiesPage() {
 
   const loadSaved = async () => {
     const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { setLoading(false); return }
-    const { data } = await supabase.from('saved_opportunities').select('opportunity_id').eq('user_id', session.user.id)
+    if (!session) {
+      setLoading(false)
+      return
+    }
+    const { data } = await supabase
+      .from('saved_opportunities')
+      .select('opportunity_id')
+      .eq('user_id', session.user.id)
     if (data) setSaved(data.map((s) => s.opportunity_id))
     setLoading(false)
   }
@@ -51,7 +63,7 @@ export default function OpportunitiesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     )
@@ -65,29 +77,36 @@ export default function OpportunitiesPage() {
           <p className="text-sm text-muted-foreground">Curated opportunities matched to your interests</p>
         </motion.div>
 
-        <motion.div variants={fadeInUp} className="grid gap-4">
+        <motion.div variants={fadeInUp} className="space-y-4">
           {OPPORTUNITIES.map((opp) => (
-            <Card key={opp.id} className="overflow-hidden">
+            <Card key={opp.id} className="card-hover overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-start gap-2.5">
-                      <div className="mt-1 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                      <div>
-                        <CardTitle className="text-sm">{opp.title}</CardTitle>
-                        <CardDescription className="mt-0.5 text-xs">{opp.description}</CardDescription>
+                      <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <CardTitle className="text-sm">{opp.title}</CardTitle>
+                          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium capitalize text-primary">
+                            {opp.type.replace('-', ' ')}
+                          </span>
+                        </div>
+                        <CardDescription className="mt-1 text-xs">{opp.description}</CardDescription>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                  <div className="flex flex-shrink-0 items-center gap-1">
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleSave(opp.id)}>
-                      {saved.includes(opp.id)
-                        ? <Bookmark className="h-3.5 w-3.5 text-primary" />
-                        : <BookmarkPlus className="h-3.5 w-3.5" />}
+                      {saved.includes(opp.id) ? (
+                        <Bookmark className="h-3.5 w-3.5 text-primary" />
+                      ) : (
+                        <BookmarkPlus className="h-3.5 w-3.5" />
+                      )}
                     </Button>
                     {opp.link && (
                       <a href={opp.link} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" size="sm" className="h-7 gap-1 text-xs px-2">
+                        <Button variant="outline" size="sm" className="h-7 gap-1 px-2 text-xs">
                           Visit <ExternalLink className="h-3 w-3" />
                         </Button>
                       </a>
@@ -96,21 +115,30 @@ export default function OpportunitiesPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
                   {opp.tags.map((tag) => (
-                    <span key={tag} className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{tag}</span>
+                    <span
+                      key={tag}
+                      className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
+                    >
+                      {tag}
+                    </span>
                   ))}
-                  <span className={cn(
-                    'rounded-full px-2 py-0.5 text-[10px]',
-                    opp.difficultyLevel === 'beginner' && 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-                    opp.difficultyLevel === 'intermediate' && 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-                    opp.difficultyLevel === 'advanced' && 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-                  )}>
+                  <span
+                    className={cn(
+                      'rounded-full px-2 py-0.5 text-[10px] capitalize',
+                      difficultyStyles[opp.difficultyLevel] ?? 'bg-muted text-muted-foreground'
+                    )}
+                  >
                     {opp.difficultyLevel}
                   </span>
                   {opp.deadline && (
-                    <span className="text-[10px] text-muted-foreground ml-auto">
-                      Due {new Date(opp.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    <span className="ml-auto text-[10px] text-muted-foreground">
+                      Due{' '}
+                      {new Date(opp.deadline).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                      })}
                     </span>
                   )}
                 </div>
@@ -120,7 +148,7 @@ export default function OpportunitiesPage() {
         </motion.div>
 
         <motion.div variants={fadeInUp}>
-          <Card className="bg-primary/5 border-primary/20">
+          <Card className="rounded-2xl border-border/80 bg-muted/30">
             <CardHeader>
               <CardTitle className="text-sm">Tips</CardTitle>
             </CardHeader>

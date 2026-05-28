@@ -26,6 +26,8 @@ export default function DirectionPage() {
   const [direction, setDirection] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [warning, setWarning] = useState<string | null>(null)
   const supabase = createClientComponentClient()
 
   useEffect(() => {
@@ -35,7 +37,10 @@ export default function DirectionPage() {
 
   const loadDirection = async () => {
     const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return
+    if (!session) {
+      setLoading(false)
+      return
+    }
     const { data } = await supabase
       .from('weekly_directions')
       .select('*')
@@ -49,13 +54,19 @@ export default function DirectionPage() {
 
   const generateDirection = async () => {
     setGenerating(true)
+    setError(null)
     try {
       const res = await fetch('/api/direction', { method: 'POST' })
-      if (res.ok) {
-        const data = await res.json()
-        setDirection(data.direction)
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error || 'Failed to generate direction')
       }
-    } catch {} finally {
+      setDirection(data.direction)
+      setWarning(data.warning || null)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to generate direction'
+      setError(message)
+    } finally {
       setGenerating(false)
     }
   }
@@ -74,6 +85,7 @@ export default function DirectionPage() {
         <div className="text-center">
           <Sparkles className="mx-auto h-8 w-8 text-muted-foreground/30 mb-3" />
           <p className="text-sm text-muted-foreground mb-4">No weekly direction yet</p>
+          {error && <p className="mb-3 text-xs text-destructive">{error}</p>}
           <Button onClick={generateDirection} disabled={generating} size="sm" className="gap-1.5">
             <RefreshCw className={cn('h-3.5 w-3.5', generating && 'animate-spin')} />
             Generate Direction
@@ -99,6 +111,18 @@ export default function DirectionPage() {
             Refresh
           </Button>
         </motion.div>
+
+        {(warning || error) && (
+          <motion.div variants={fadeInUp}>
+            <Card className="rounded-2xl">
+              <CardContent className="pt-6">
+                <p className={cn('text-sm', error ? 'text-destructive' : 'text-muted-foreground')}>
+                  {error || warning}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         <motion.div variants={fadeInUp}>
           <Card>
@@ -137,7 +161,7 @@ export default function DirectionPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              {direction.focus_suggestions?.map((s: string, i: number) => (
+                {(direction.focus_suggestions || direction.focusSuggestions || []).map((s: string, i: number) => (
                 <div key={i} className="flex gap-2.5 rounded-lg border p-3">
                   <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
                   <p className="text-sm">{s}</p>
@@ -158,27 +182,27 @@ export default function DirectionPage() {
               </div>
             </CardHeader>
             <CardContent className="grid gap-2 sm:grid-cols-2">
-              {direction.skill_recommendations?.map((s: string, i: number) => (
+              {(direction.skill_recommendations || direction.skillRecommendations || []).map((s: string, i: number) => (
                 <div key={i} className="rounded-lg border p-3 text-sm">{s}</div>
               ))}
             </CardContent>
           </Card>
         </motion.div>
 
-        {direction.productivity_warnings?.length > 0 && (
+        {(direction.productivity_warnings || direction.productivityWarnings || []).length > 0 && (
           <motion.div variants={fadeInUp}>
-            <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-900/30 dark:bg-amber-950/10">
+            <Card className="rounded-2xl border-border/80 bg-muted/30">
               <CardHeader>
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
+                  <AlertCircle className="h-4 w-4 text-primary mt-0.5" />
                   <div>
-                    <CardTitle className="text-sm text-amber-900 dark:text-amber-100">Watch Out For</CardTitle>
+                    <CardTitle className="text-sm">Watch Out For</CardTitle>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                {direction.productivity_warnings?.map((w: string, i: number) => (
-                  <p key={i} className="text-sm text-amber-800 dark:text-amber-200">&bull; {w}</p>
+                {(direction.productivity_warnings || direction.productivityWarnings || []).map((w: string, i: number) => (
+                  <p key={i} className="text-sm text-muted-foreground">&bull; {w}</p>
                 ))}
               </CardContent>
             </Card>
@@ -191,7 +215,7 @@ export default function DirectionPage() {
               <CardTitle className="text-sm">Next Steps</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {direction.next_steps?.map((s: string, i: number) => (
+              {(direction.next_steps || direction.nextSteps || []).map((s: string, i: number) => (
                 <div key={i} className="flex gap-3 rounded-lg border p-3 text-sm">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary flex-shrink-0">
                     {i + 1}

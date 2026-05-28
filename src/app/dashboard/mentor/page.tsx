@@ -7,6 +7,7 @@ import { Plus, Send, MessageSquare, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn, timeAgo } from '@/lib/utils'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import ReactMarkdown from 'react-markdown'
 
 interface Thread {
   id: string
@@ -27,11 +28,14 @@ interface Message {
 export default function MentorPage() {
   const [threads, setThreads] = useState<Thread[]>([])
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null)
+  const [isComposingNewThread, setIsComposingNewThread] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [messagesError, setMessagesError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const latestMessagesRequestRef = useRef<string | null>(null)
   const supabase = createClientComponentClient()
 
   useEffect(() => {
@@ -40,16 +44,42 @@ export default function MentorPage() {
   }, [])
 
   useEffect(() => {
-    if (selectedThreadId) loadMessages()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedThreadId])
-
-  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   const loadThreads = async () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+      body: JSON.stringify({
+        sessionId: 'ce31a0',
+        runId: 'pre-fix',
+        hypothesisId: 'H2',
+        location: 'src/app/dashboard/mentor/page.tsx:loadThreads',
+        message: 'loadThreads called',
+        data: {},
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+
     const { data: { session } } = await supabase.auth.getSession()
+    // #region agent log
+    fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+      body: JSON.stringify({
+        sessionId: 'ce31a0',
+        runId: 'pre-fix',
+        hypothesisId: 'H2',
+        location: 'src/app/dashboard/mentor/page.tsx:loadThreads',
+        message: 'getSession result (threads)',
+        data: { hasSession: Boolean(session) },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
     if (!session) return
     const { data } = await supabase
       .from('threads')
@@ -57,19 +87,101 @@ export default function MentorPage() {
       .eq('user_id', session.user.id)
       .order('updated_at', { ascending: false })
     if (data) {
+      // #region agent log
+      fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+        body: JSON.stringify({
+          sessionId: 'ce31a0',
+          runId: 'pre-fix',
+          hypothesisId: 'H2',
+          location: 'src/app/dashboard/mentor/page.tsx:loadThreads',
+          message: 'threads loaded',
+          data: { threadCount: Array.isArray(data) ? data.length : null },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
       setThreads(data)
-      if (data.length > 0 && !selectedThreadId) setSelectedThreadId(data[0].id)
+      if (data.length > 0 && !selectedThreadId) {
+        const firstThreadId = data[0].id
+        setSelectedThreadId(firstThreadId)
+        setIsComposingNewThread(false)
+      }
     }
   }
 
-  const loadMessages = async () => {
+  useEffect(() => {
     if (!selectedThreadId) return
-    const { data } = await supabase
+    setMessages([])
+    setMessagesError(null)
+    void loadMessages(selectedThreadId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedThreadId])
+
+  const loadMessages = async (threadId: string) => {
+    const requestToken = `${threadId}:${Date.now()}`
+    latestMessagesRequestRef.current = requestToken
+    setIsLoading(true)
+    setMessagesError(null)
+
+    // #region agent log
+    fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+      body: JSON.stringify({
+        sessionId: 'ce31a0',
+        runId: 'post-fix',
+        hypothesisId: 'H7',
+        location: 'src/app/dashboard/mentor/page.tsx:loadMessages',
+        message: 'loadMessages started',
+        data: { threadId, requestToken },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+
+    const { data, error } = await supabase
       .from('messages')
       .select('*')
-      .eq('thread_id', selectedThreadId)
+      .eq('thread_id', threadId)
       .order('created_at', { ascending: true })
-    if (data) setMessages(data)
+
+    const isLatestRequest = latestMessagesRequestRef.current === requestToken
+
+    // #region agent log
+    fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+      body: JSON.stringify({
+        sessionId: 'ce31a0',
+        runId: 'post-fix',
+        hypothesisId: 'H7',
+        location: 'src/app/dashboard/mentor/page.tsx:loadMessages',
+        message: 'loadMessages completed',
+        data: {
+          threadId,
+          requestToken,
+          isLatestRequest,
+          hasError: Boolean(error),
+          messageCount: Array.isArray(data) ? data.length : null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+
+    if (!isLatestRequest) return
+
+    if (error) {
+      setMessages([])
+      setMessagesError('Unable to load this conversation right now.')
+      setIsLoading(false)
+      return
+    }
+
+    setMessages(data || [])
+    setIsLoading(false)
   }
 
   const handleSendMessage = async () => {
@@ -91,30 +203,100 @@ export default function MentorPage() {
     ])
 
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+        body: JSON.stringify({
+          sessionId: 'ce31a0',
+          runId: 'pre-fix',
+          hypothesisId: 'H3',
+          location: 'src/app/dashboard/mentor/page.tsx:handleSendMessage',
+          message: 'sending message to /api/chat',
+          data: { hasSelectedThreadId: Boolean(selectedThreadId), userMessageLength: userMessage.length },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage, threadId: selectedThreadId }),
       })
 
-      if (!res.ok) throw new Error('Failed')
+      // #region agent log
+      fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+        body: JSON.stringify({
+          sessionId: 'ce31a0',
+          runId: 'pre-fix',
+          hypothesisId: 'H3',
+          location: 'src/app/dashboard/mentor/page.tsx:handleSendMessage',
+          message: 'received response from /api/chat',
+          data: { ok: res.ok, status: res.status },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
 
       const data = await res.json()
-
-      if (!selectedThreadId && data.threadId) {
-        setSelectedThreadId(data.threadId)
-        await loadThreads()
+      if (!res.ok) {
+        throw new Error(
+          data?.errorCode === 'GEMINI_QUOTA_EXCEEDED'
+            ? 'AI quota exceeded on your Gemini key. Check quota/billing and retry.'
+            : data?.errorCode === 'GEMINI_MODEL_UNAVAILABLE'
+              ? 'Configured Gemini model is unavailable. Update model settings and retry.'
+              : data?.error ||
+                (res.status === 429
+                  ? 'AI quota exceeded. Please check your Gemini plan/billing or try again later.'
+                  : 'Failed to generate response')
+        )
       }
 
-      await loadMessages()
-    } catch {
+      if (data?.warning && typeof data.warning === 'string') {
+        setMessagesError(data.warning)
+      } else {
+        setMessagesError(null)
+      }
+
+      if (!selectedThreadId && data.threadId) {
+        const createdThreadId = data.threadId
+        setSelectedThreadId(createdThreadId)
+        setIsComposingNewThread(false)
+        await loadThreads()
+      } else if (selectedThreadId) {
+        await loadMessages(selectedThreadId)
+      }
+    } catch (error) {
+      const fallbackMessage = "I couldn't process that right now. Please try again."
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : fallbackMessage
+      // #region agent log
+      fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+        body: JSON.stringify({
+          sessionId: 'ce31a0',
+          runId: 'pre-fix',
+          hypothesisId: 'H3',
+          location: 'src/app/dashboard/mentor/page.tsx:handleSendMessage',
+          message: 'sendMessage failed (caught)',
+          data: {},
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
       setMessages((prev) => [
         ...prev,
         {
           id: `err-${Date.now()}`,
           thread_id: selectedThreadId || '',
           role: 'assistant',
-          content: "I couldn't process that right now. Please try again.",
+          content: message,
           created_at: new Date().toISOString(),
         },
       ])
@@ -124,14 +306,31 @@ export default function MentorPage() {
   }
 
   const handleNewThread = async () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7782/ingest/186ebea2-15bd-4fb3-93ff-4bcf057ea2dc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'ce31a0' },
+      body: JSON.stringify({
+        sessionId: 'ce31a0',
+        runId: 'post-fix',
+        hypothesisId: 'H5',
+        location: 'src/app/dashboard/mentor/page.tsx:handleNewThread',
+        message: 'new thread button clicked',
+        data: { threadCount: threads.length, hadSelectedThreadId: Boolean(selectedThreadId) },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+
+    setIsComposingNewThread(true)
     setSelectedThreadId(null)
     setMessages([])
     setInput('')
   }
 
   return (
-    <div className="flex h-full">
-      <div className="w-72 border-r bg-card flex flex-col">
+    <div className="flex h-full gap-4">
+      <div className="flex w-72 flex-col rounded-2xl border bg-card">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h2 className="text-sm font-semibold">Conversations</h2>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleNewThread}>
@@ -151,7 +350,10 @@ export default function MentorPage() {
                 key={thread.id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                onClick={() => setSelectedThreadId(thread.id)}
+                onClick={() => {
+                  setSelectedThreadId(thread.id)
+                  setIsComposingNewThread(false)
+                }}
                 className={cn(
                   'w-full rounded-lg px-3 py-2.5 text-left transition-colors',
                   selectedThreadId === thread.id
@@ -172,8 +374,8 @@ export default function MentorPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col">
-        {selectedThreadId || threads.length === 0 ? (
+      <div className="flex flex-1 flex-col rounded-2xl border bg-card">
+        {selectedThreadId || isComposingNewThread || threads.length === 0 ? (
           <>
             <div className="border-b px-6 py-4">
               <h1 className="text-base font-semibold">
@@ -200,7 +402,10 @@ export default function MentorPage() {
                             : 'bg-muted text-foreground'
                         )}
                       >
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                        {/* 1. Import it at the very top of your file: import ReactMarkdown from 'react-markdown' */}
+                        <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed break-words text-current">
+                           <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
                         <p
                           className={cn(
                             'mt-1.5 text-[10px]',
@@ -237,7 +442,11 @@ export default function MentorPage() {
                 {messages.length === 0 && !isSending && (
                   <div className="py-16 text-center">
                     <Sparkles className="mx-auto h-8 w-8 text-muted-foreground/30 mb-3" />
-                    <p className="text-sm text-muted-foreground">Ask your mentor anything</p>
+                    <p className="text-sm text-muted-foreground">
+                      {isLoading
+                        ? 'Loading conversation...'
+                        : messagesError || 'Ask your mentor anything'}
+                    </p>
                   </div>
                 )}
 
