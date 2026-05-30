@@ -96,8 +96,11 @@ export default function DirectionPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <motion.div initial="initial" animate="animate" variants={staggerContainer}>
+    /* Expanded page container boundaries from max-w-3xl to max-w-5xl */
+    <div className="mx-auto max-w-5xl space-y-6 p-6">
+      <motion.div initial="initial" animate="animate" variants={staggerContainer} className="space-y-6">
+        
+        {/* Top Header Row Layout */}
         <motion.div variants={fadeInUp} className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-semibold tracking-tight">This Week</h1>
@@ -112,6 +115,7 @@ export default function DirectionPage() {
           </Button>
         </motion.div>
 
+        {/* Warning or Error Notifications Banner */}
         {(warning || error) && (
           <motion.div variants={fadeInUp}>
             <Card className="rounded-2xl">
@@ -124,108 +128,131 @@ export default function DirectionPage() {
           </motion.div>
         )}
 
-        <motion.div variants={fadeInUp}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <Target className="h-4 w-4 text-primary mt-0.5" />
-                <div>
-                  <CardTitle className="text-sm">Priorities</CardTitle>
-                  <CardDescription>Focus on these to move forward</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ol className="space-y-2">
-                {direction.priorities?.map((p: string, i: number) => (
-                  <li key={i} className="flex gap-3 text-sm">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary flex-shrink-0 mt-0.5">
-                      {i + 1}
-                    </span>
-                    {p}
-                  </li>
-                ))}
-              </ol>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={fadeInUp}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <TrendingUp className="h-4 w-4 text-primary mt-0.5" />
-                <div>
-                  <CardTitle className="text-sm">Focus Areas</CardTitle>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-2">
-                {(direction.focus_suggestions || direction.focusSuggestions || []).map((s: string, i: number) => (
-                <div key={i} className="flex gap-2.5 rounded-lg border p-3">
-                  <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                  <p className="text-sm">{s}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={fadeInUp}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <BookOpen className="h-4 w-4 text-primary mt-0.5" />
-                <div>
-                  <CardTitle className="text-sm">Skills to Build</CardTitle>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="grid gap-2 sm:grid-cols-2">
-              {(direction.skill_recommendations || direction.skillRecommendations || []).map((s: string, i: number) => (
-                <div key={i} className="rounded-lg border p-3 text-sm">{s}</div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {(direction.productivity_warnings || direction.productivityWarnings || []).length > 0 && (
-          <motion.div variants={fadeInUp}>
-            <Card className="rounded-2xl border-border/80 bg-muted/30">
-              <CardHeader>
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="h-4 w-4 text-primary mt-0.5" />
-                  <div>
-                    <CardTitle className="text-sm">Watch Out For</CardTitle>
+        {/* DASHBOARD GRID WRAPPER
+          Stacks into 1 column on mobile, changes to a 3-column configuration on desktop screens.
+        */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 items-start">
+          
+          {/* ================= LEFT MAIN WORKSPACE COLUMN (Spans 2 columns) ================= */}
+          <div className="space-y-6 md:col-span-2 flex flex-col h-full">
+            
+            {/* Section 1: Priorities */}
+            <motion.div variants={fadeInUp}>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start gap-3">
+                    <Target className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <CardTitle className="text-sm">Priorities</CardTitle>
+                      <CardDescription>Focus on these to move forward</CardDescription>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {(direction.productivity_warnings || direction.productivityWarnings || []).map((w: string, i: number) => (
-                  <p key={i} className="text-sm text-muted-foreground">&bull; {w}</p>
-                ))}
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+                </CardHeader>
+                <CardContent>
+                  <ol className="space-y-2">
+                    {direction.priorities?.map((p: string, i: number) => (
+                      <li key={i} className="flex gap-3 text-sm">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary flex-shrink-0 mt-0.5">
+                          {i + 1}
+                        </span>
+                        {p}
+                      </li>
+                    ))}
+                  </ol>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-        <motion.div variants={fadeInUp}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Next Steps</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {(direction.next_steps || direction.nextSteps || []).map((s: string, i: number) => (
-                <div key={i} className="flex gap-3 rounded-lg border p-3 text-sm">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary flex-shrink-0">
-                    {i + 1}
-                  </span>
-                  {s}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
+            {/* Section 2: Focus Areas */}
+            <motion.div variants={fadeInUp}>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start gap-3">
+                    <TrendingUp className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <CardTitle className="text-sm">Focus Areas</CardTitle>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {(direction.focus_suggestions || direction.focusSuggestions || []).map((s: string, i: number) => (
+                    <div key={i} className="flex gap-2.5 rounded-lg border p-3">
+                      <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                      <p className="text-sm">{s}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Section 3: Next Steps */}
+            <motion.div variants={fadeInUp}>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Next Steps</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {(direction.next_steps || direction.nextSteps || []).map((s: string, i: number) => (
+                    <div key={i} className="flex gap-3 rounded-lg border p-3 text-sm">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary flex-shrink-0">
+                        {i + 1}
+                      </span>
+                      {s}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+          </div>
+
+          {/* ================= RIGHT SIDEBAR METRICS COLUMN (Spans 1 column) ================= */}
+          <div className="space-y-6 md:col-span-1 flex flex-col h-full">
+            
+            {/* Section 4: Skills to Build */}
+            <motion.div variants={fadeInUp}>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start gap-3">
+                    <BookOpen className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <CardTitle className="text-sm">Skills to Build</CardTitle>
+                    </div>
+                  </div>
+                </CardHeader>
+                {/* Changed columns to 1 inside the sidebar context so tags list downwards cleanly */}
+                <CardContent className="grid gap-2 grid-cols-1">
+                  {(direction.skill_recommendations || direction.skillRecommendations || []).map((s: string, i: number) => (
+                    <div key={i} className="rounded-lg border p-3 text-sm">{s}</div>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Section 5: Watch Out For */}
+            {(direction.productivity_warnings || direction.productivityWarnings || []).length > 0 && (
+              <motion.div variants={fadeInUp}>
+                <Card className="rounded-2xl border-border/80 bg-muted/30">
+                  <CardHeader>
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-4 w-4 text-primary mt-0.5" />
+                      <div>
+                        <CardTitle className="text-sm">Watch Out For</CardTitle>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {(direction.productivity_warnings || direction.productivityWarnings || []).map((w: string, i: number) => (
+                      <p key={i} className="text-sm text-muted-foreground">&bull; {w}</p>
+                    ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+          </div>
+
+        </div>
       </motion.div>
     </div>
   )

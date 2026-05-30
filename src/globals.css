@@ -80,10 +80,15 @@
     @apply bg-white/80 backdrop-blur-xl dark:bg-stone-900/80;
   }
 
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-md hover:border-primary/30;
-  }
+.card-hover {
+  @apply transition-all duration-300;
+}
 
+.card-hover:hover {
+  @apply border-primary/50 -translate-y-1;
+  /* Adjust the 30px (spread) and 0.5 (intensity/opacity) to your liking */
+  box-shadow: 0 0 30px 2px hsl(var(--primary) / 0.5);
+}
   .text-balance {
     text-wrap: balance;
   }
