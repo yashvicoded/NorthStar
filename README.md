@@ -1,4 +1,4 @@
-<h1 align="center"> NorthStar </h1>
+<h1 align="center"> NorthStar ✶.˚ </h1>
 
 <p align="center"> <b> The mentor every ambitious builder wishes they had.</b>
 </p>
@@ -10,6 +10,7 @@
 ---
 
 ### 📖 Table of Contents
+- [Demo Links](#-demo-links)
 - [Overview](#-overview)
 - [Key Features](#-key-features)
 - [Tech Stack & Architecture](#-tech-stack--architecture)
@@ -19,6 +20,18 @@
 - [Usage](#-usage)
 - [Contributing](#-contributing)
 - [License](#-license)
+
+---
+
+## 🔗 Demo Links
+
+• **Live Application:** [Click here to experience NorthStar!](https://northstar-ai-mentor.vercel.app/)
+
+• **Demo Video:** [Click here to watch the demo!]()
+
+• **GitHub Repository:** [GitHub Repo Link!](https://github.com/yashvicoded/NorthStar.git)
+
+• **Project Announcement:** [LinkedIn post!]()
 
 ---
 
@@ -39,26 +52,29 @@ to help students focus on the right next step instead of getting lost in informa
 ---
 
 ## ✨ Key Features
+💬 AI Mentor with Long-Term Context
 
-NorthStar is built around a series of targeted features designed to address critical pain points in professional growth and career planning.
+Unlike generic chatbots, NorthStar acts as a persistent technical mentor that remembers onboarding data, previous conversations, goals, and challenges. Students can ask questions about projects, learning paths, internships, or technical decisions while maintaining continuity over time.
 
-*   🚀 **Interactive Growth Hub**
-    Experience a unified dashboard that visually represents your active milestones, profile completeness, and critical career paths. Designed with fluid React states and Tailwind CSS transitions, the growth hub keeps you aligned with your primary professional goals.
+🧭 Weekly Direction Engine
 
-*   🗺️ **Dynamic Career Timelines**
-    Visualize your long-term and short-term career pathways. The timeline interface maps out logical progression steps, skill sets, and experience requirements, converting ambitious career goals into actionable, bite-sized chronological milestones.
+Generates personalized weekly action plans based on the student's profile, interests, current goals, and progress. Instead of consuming endless tutorials, students receive a clear and actionable next step every week.
 
-*   💬 **Guided Direction & AI-Assisted Consultation**
-    Leverage modern intelligent assistance using native conversational interfaces and targeted pathfinding systems. Connected directly through specific `/api/chat` and `/api/direction` endpoints, users can query path structures, resolve development blocks, and ask career questions in real time.
+🎯 Opportunity Radar
 
-*   🤝 **Mentorship Connections**
-    Bridge the gap between expert advice and personal growth. The built-in mentoring module helps users document connections, manage communication logs, and build pathways toward meaningful 1-on-1 relationships with domain experts.
+A curated opportunity discovery system that surfaces relevant hackathons, internships, open-source programs, and learning opportunities. Students can save opportunities and build a personalized pipeline aligned with their interests.
 
-*   💼 **Opportunities Pipeline**
-    Organize and keep track of active job openings, learning courses, open-source projects, and internal promotions. This tool helps you organize all prospective career-changing developments inside a clean, actionable status-tracking board.
+📈 Growth Timeline
 
-*   🔒 **Secure Onboarding & Authentication Guarding**
-    Ensure all private career roadmaps, personal mentor logs, and career notes are secured using robust authentication. With automatic middleware routing and protected-route wrapping, your sensitive professional metadata remains private, customized, and protected.
+A visual record of milestones, projects, skills, and achievements. The timeline helps students track progress over time and maintain momentum throughout their engineering journey.
+
+🛠️ Personalized Onboarding
+
+A structured onboarding flow captures academic background, technical interests, preferred technologies, confidence levels, and career aspirations. This context powers a more personalized mentorship experience.
+
+🔐 Secure Authentication & Persistent Profiles
+
+Users can securely create accounts, maintain profiles, and access their mentorship history across sessions. NorthStar preserves context so students can continue their growth journey without starting from scratch each time.
 
 ---
 
@@ -76,6 +92,10 @@ NorthStar is built on a modern TypeScript stack, using a client-centric componen
 | **Framer Motion (`^10.16.0`)**| Micro-interactions & Animations | Adds smooth, physical transitions to timeline nodes, collapsible sidebar drawers, and list updates to improve overall user engagement. |
 | **Supabase Client (`^2.38.0`)**| Real-Time DB & Auth Client | Enables rapid integration with user authentication states, row-level security logic, and direct communication with secure relational storage. |
 | **Lucide React (`^0.294.0`)** | Contextual Iconography | Supplies lightweight, highly recognizable, and scalable vector icons for dashboards, timelines, and profile interfaces. |
+
+
+# 🏗️ System Architecture
+  <img src="C:\Users\Maharaj\Downloads\Architecture Diagram.png" alt="Architecture Diagram" width="100%">
 
 ---
 
@@ -184,7 +204,7 @@ Explore the structural visual framework of the **NorthStar** interface. This col
   <img src="https://placehold.co/800x450/1f2937/ffffff?text=Profile+and+Onboarding+Wizard" alt="User Onboarding Wizard" width="100%">
   <em><p align="center">Figure 6: Step-by-step onboarding process, capturing skills, preferences, and long-term targets to build user models.</p></em>
 
-## 🎬 Video Demos
+## 🎬 Video Demo
 
   <a href="https://example.com/your-video-link-1" target="_blank">
     <img src="https://placehold.co/800x450/1f1e2e/c5a8ff?text=Watch+NorthStar+Interactive+Walkthrough" alt="Interactive System Walkthrough" width="100%">
@@ -251,113 +271,85 @@ Ensure you have the following system resources installed before starting your in
 
 ## 🔧 Usage
 
-The NorthStar application has been structured to make professional mapping, goal setting, and mentor logging simple and intuitive.
+NorthStar is designed to help engineering students move from confusion to clarity through personalized mentorship, direction, and opportunity discovery.
 
-### 1. User Authentication & Onboarding Flow
-Upon accessing the platform, users must create a profile to start tracking goals:
-- Go to the public entry screen and navigate to **Sign Up** (`/auth/signup`).
-- Complete your login step; this directs you into the structured **Onboarding Wizard** (`/onboarding`).
-- Onboarding gathers your core competency metrics, targets, and selected focus industries, constructing a custom profile in `schema.sql`.
+### 1. Create Your Profile
 
-### 2. Utilizing the Core Navigation Dashboard
-The authenticated workspace houses five focus tools configured inside `/app/dashboard/`:
+- Sign up and complete onboarding.
+- Share your academic background, interests, preferred technologies, current challenges, and long-term goals.
+- NorthStar uses this context to personalize mentorship and recommendations.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                           NorthStar                             │
-├───────────────┬─────────────────────────────────────────────────┤
-│ 🧭 Overview   │ Welcome back! Dynamic Progress Tracker          │
-│ 🗺️ Timeline   │ Step-by-step career path planning maps         │
-│ 🤝 Mentoring  │ Match details & communication portal            │
-│ 💼 Jobs       │ Opportunity Pipelines & Activity Logs           │
-│ 🔍 Direction  │ Path Finder Diagnostic & AI Consultations       │
-└───────────────┴─────────────────────────────────────────────────┘
-```
+### 2. Talk to Your AI Mentor
 
-*   **Dynamic Timelines (`/dashboard/timeline`):** Add, update, or remove target milestones. The frontend visualizer automatically updates your chronological career map with Framer Motion animations.
-*   **Intelligent Path Finding (`/dashboard/direction`):** Submit your career path questions to receive automated diagnostic direction, powered behind the scenes by Next.js API route actions.
-*   **Opportunities Tracker (`/dashboard/opportunities`):** Maintain a Kanban-style pipeline of prospective job openings, course details, and active certificates.
-*   **Mentorship Space (`/dashboard/mentor`):** Select target career mentors and schedule updates to maintain regular progress logging.
+Navigate to **Mentor** and start a conversation.
 
----
+Ask questions like:
 
-## 🤝 Contributing
+- "How should I learn React without getting overwhelmed?"
+- "Should I focus on DSA or projects right now?"
+- "How do I prepare for internships?"
+- "What should I build next?"
 
-We welcome contributions to improve NorthStar! Your input helps make this project better for everyone.
+The mentor provides practical guidance while maintaining context across conversations.
 
-### How to Contribute
+### 3. Get Your Weekly Direction
 
-1. **Fork the repository** - Click the 'Fork' button at the top right of this page
-2. **Create a feature branch** 
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Make your changes** - Improve code, documentation, or features
-4. **Test thoroughly** - Ensure all functionality works as expected
-   ```bash
-   npm run type-check
-   # AND
-   npm run lint
-   ```
-5. **Commit your changes** - Write clear, descriptive commit messages
-   ```bash
-   git commit -m 'Add: Amazing new feature that does X'
-   ```
-6. **Push to your branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-7. **Open a Pull Request** - Submit your changes for review
+Visit **This Week** to generate a personalized action plan.
 
-### Development Guidelines
+NorthStar helps you:
 
-- ✅ Follow the existing code style and conventions
-- 📝 Add comments for complex logic and algorithms
-- 🧪 Write tests for new features and bug fixes
-- 📚 Update documentation for any changed functionality
-- 🔄 Ensure backward compatibility when possible
-- 🎯 Keep commits focused and atomic
+- Identify priorities
+- Focus on high-impact tasks
+- Avoid information overload
+- Maintain consistent progress
 
-### Ideas for Contributions
+### 4. Discover Opportunities
 
-We're looking for help with:
+Use **Opportunity Radar** to explore:
 
-- 🐛 **Bug Fixes:** Report and fix bugs
-- ✨ **New Features:** Implement requested features from issues
-- 📖 **Documentation:** Improve README, add tutorials, create examples
-- 🎨 **UI/UX:** Enhance user interface and experience
-- ⚡ **Performance:** Optimize code and improve efficiency
-- 🌐 **Internationalization:** Add multi-language support
-- 🧪 **Testing:** Increase test coverage
-- ♿ **Accessibility:** Make the project more accessible
+- Hackathons
+- Internships
+- Open-source programs
+- Learning opportunities
 
-### Code Review Process
+Save opportunities that match your interests and goals.
 
-- All submissions require review before merging
-- Maintainers will provide constructive feedback
-- Changes may be requested before approval
-- Once approved, your PR will be merged and you'll be credited
+### 5. Track Your Growth
 
-### Questions?
+The **Timeline** feature provides a visual record of your journey.
 
-Feel free to open an issue for any questions or concerns. We're here to help!
+Track:
+
+- Projects completed
+- Skills learned
+- Career milestones
+- Progress over time
 
 ---
+## 🤖 AI & Codex Workflow
 
-## 📝 License
+NorthStar was developed using an AI-assisted development workflow powered by OpenAI tools and Codex.
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for complete details.
+### How AI Was Used
 
-### What this means:
+- Architecture planning and feature decomposition
+- Rapid UI iteration and component generation
+- Debugging authentication and state-management issues
+- API integration assistance
+- Refactoring and code quality improvements
+- Documentation and developer workflow support
 
-- ✅ **Commercial use:** You can use this project commercially
-- ✅ **Modification:** You can modify the code
-- ✅ **Distribution:** You can distribute this software
-- ✅ **Private use:** You can use this project privately
-- ⚠️ **Liability:** The software is provided "as is", without warranty
-- ⚠️ **Trademark:** This license does not grant trademark rights
+### Development Workflow
 
+1. Define product requirements and user experience.
+2. Use Codex-assisted prompting to generate implementation plans.
+3. Build features iteratively in Next.js and Supabase.
+4. Use AI-assisted debugging to resolve API, authentication, and state persistence issues.
+5. Refine UX, onboarding, mentorship flows, and opportunity discovery systems.
+
+This workflow allowed rapid MVP development while maintaining a focus on product design, technical execution, and user experience.
 ---
+
 
 <p align="center">Made with ❤️ by the NorthStar Team</p>
 <p align="center">
