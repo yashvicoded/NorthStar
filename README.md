@@ -18,9 +18,7 @@
 - [Demo & Screenshots](#-demo--screenshots)
 - [Getting Started](#-getting-started)
 - [Usage](#-usage)
-- [Contributing](#-contributing)
-- [License](#-license)
-
+- [ AI & Codex Workflow](#-ai--codex-workflow)
 ---
 
 ## 🔗 Demo Links
@@ -94,15 +92,15 @@ NorthStar is built on a modern TypeScript stack, using a client-centric componen
 | **Lucide React (`^0.294.0`)** | Contextual Iconography | Supplies lightweight, highly recognizable, and scalable vector icons for dashboards, timelines, and profile interfaces. |
 
 
-# 🏗️ System Architecture
+### 🏗️ System Architecture
   <img src="C:\Users\Maharaj\Downloads\Architecture Diagram.png" alt="Architecture Diagram" width="100%">
 
 ---
 
 ## 📁 Project Structure
 
-Below is the verified structural mapping of the NorthStar repository. The codebase separates layout routing, stateful React logic, structural services, and database schemas for maximum modularity and maintainability.
-
+NorthStar follows a modular Next.js architecture with separate layers for UI, business logic, API routes, and data access.
+The structure below highlights the major parts of the application:
 ```
 yashvicoded-NorthStar-f497efe/
 
@@ -113,43 +111,23 @@ yashvicoded-NorthStar-f497efe/
 │   ├── 📁 constants/                # Immutable layout strings and static values
 │   │   └── 📄 index.ts              # Exported menu paths, constants, and global variables
 │   ├── 📁 hooks/                    # Reusable stateful custom React hooks
-│   │   └── 📄 useAuth.ts            # Encapsulated authentication hook handling sessions
 │   ├── 📁 app/                      # Next.js App Router routing framework
-│   │   ├── 📄 layout.tsx            # Global application theme wrapper
-│   │   ├── 📄 page.tsx              # Public informational landing page
 │   │   ├── 📁 api/                  # Serverless API endpoints
 │   │   │   ├── 📁 direction/        # Core path calculation endpoint
-│   │   │   │   └── 📄 route.ts      # Processes career path recommendations
 │   │   │   └── 📁 chat/             # Chat execution logic endpoint
-│   │   │       └── 📄 route.ts      # Processes dialogue interactions
 │   │   ├── 📁 dashboard/            # Authenticated user dashboard section
-│   │   │   ├── 📄 layout.tsx        # Dashboard layout (Sidebar, Header wrapper)
-│   │   │   ├── 📄 page.tsx          # Central dashboard metric index overview
 │   │   │   ├── 📁 opportunities/    # Opportunity exploration tool
-│   │   │   │   └── 📄 page.tsx      # Main opportunities tracker page
 │   │   │   ├── 📁 mentor/           # Mentorship communication network
-│   │   │   │   └── 📄 page.tsx      # Mentoring session manager page
 │   │   │   ├── 📁 timeline/         # Visual chronological career roadmaps
-│   │   │   │   └── 📄 page.tsx      # Dynamic timeline progression board
 │   │   │   ├── 📁 direction/        # Guided pathfinding tool
-│   │   │   │   └── 📄 page.tsx      # Diagnostic questions & active guide page
 │   │   │   └── 📁 profile/          # User professional metrics
-│   │   │       └── 📄 page.tsx      # Profile configuration and summary page
 │   │   ├── 📁 auth/                 # Signin & Registration flow pages
 │   │   │   ├── 📁 signup/           # Direct registration workspace
-│   │   │   │   └── 📄 page.tsx      # SignUp page with form validation
 │   │   │   ├── 📁 signin/           # Secure system login workspace
-│   │   │   │   └── 📄 page.tsx      # SignIn page with error alerts
 │   │   │   └── 📁 callback/         # Authentication provider webhook target
-│   │   │       └── 📄 route.ts      # Verifies incoming auth codes and maps sessions
 │   │   └── 📁 onboarding/           # New account configuration stage
-│   │       └── 📄 page.tsx          # Step-by-step preference diagnostic page
 │   ├── 📁 lib/                      # Core utility wrappers and SDK instances
-│   │   ├── 📄 utils.ts              # Structural utility wrappers (e.g., clsx, tailwind-merge)
-│   │   ├── 📄 supabase.ts           # Singleton Supabase database client instance
-│   │   ├── 📄 auth-content.tsx      # Global React Context providing auth status
 │   │   └── 📁 supabase/             # Helper utilities for database interaction
-│   │       └── 📄 route.ts          # Server-safe Supabase route handlers
 │   ├── 📁 services/                 # Layer interfacing app with Supabase queries
 │   │   ├── 📄 profile.ts            # Read/Write profiles data mapping
 │   │   ├── 📄 timeline.ts           # Career roadmap node state updates
@@ -157,25 +135,9 @@ yashvicoded-NorthStar-f497efe/
 │   │   ├── 📄 mentor.ts             # Registers mentorship queries & messages
 │   │   └── 📄 direction.ts          # Integrates directional outputs & recommendations
 │   ├── 📁 components/               # High-integrity atomic UI elements
-│   │   ├── 📄 protected-route.tsx   # Client Guard wrapping protected layout pages
 │   │   └── 📁 ui/                   # Modular design system elements (shadcn-inspired)
-│   │       ├── 📄 button.tsx        # Standardized functional button interface
-│   │       ├── 📄 input.tsx         # Styled forms input element text area
-│   │       └── 📄 card.tsx          # Configurable structural container card
 │   └── 📁 types/                    # System-wide TypeScript interface lists
 │       └── 📄 index.ts              # Database mappings and user data definitions
-├── 📄 .eslintrc.json                # Custom linter rule specifications
-├── 📄 .prettierrc                   # Universal stylistic code layout configs
-├── 📄 tailwind.config.ts            # Custom tailwind layout extensions
-├── 📄 tsconfig.json                 # Type checker compilation setups
-├── 📄 postcss.config.js             # Preprocessor utility configuration
-├── 📄 next.config.js                # Core Next.js execution parameters
-├── 📄 package.json                  # Manifest mapping scripts & dependencies
-├── 📄 package-lock.json             # Precise package version verification tree
-├── 📄 QUICKSTART.md                 # Brief setup reference guide
-├── 📄 DEVELOPMENT.md                # Local development instructions
-├── 📄 SETUP_COMPLETE.md             # Integration testing milestones checklists
-└── 📄 .gitignore                    # Explicit untracked files system checklist
 ```
 
 ---
