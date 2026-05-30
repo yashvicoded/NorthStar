@@ -1,369 +1,365 @@
-# Northstar ✦
+<h1 align="center"> NorthStar </h1>
 
-### AI Mentorship for Ambitious Engineers
+<p align="center"> <b> The mentor every ambitious builder wishes they had.</b>
+</p>
+<p align="center">
+  An AI mentorship ecosystem for ambitious engineering students.
+ </p>
 
-> *Built for engineering students who have talent, curiosity, and ambition — but not always the mentorship, clarity, or network to guide them.*
-
-Northstar is an emotionally intelligent AI mentorship platform designed for students from Tier-2 and Tier-3 colleges navigating tech careers without clear direction.
-
-Unlike generic AI chatbots, Northstar acts more like a thoughtful mentor who remembers your journey, understands your struggles, and helps you move forward with clarity over time.
-
----
-
-## ✨ Why Northstar Exists
-
-A lot of talented students don’t fail because they lack capability.
-They fail because they’re overwhelmed.
-
-Too many tutorials.
-Too many roadmaps.
-Too many opinions.
-No guidance that actually feels personal.
-
-Northstar was built to solve that.
-
-It helps students:
-
-* Find direction
-* Stay consistent
-* Reduce overwhelm
-* Build confidence
-* Make smarter career decisions
-* Track long-term progress
-
-The goal is simple:
-
-> Help ambitious engineers stop feeling lost.
 
 ---
 
-# 🧠 Core Experience
-
-## 1. Persistent Mentor Chat
-
-An AI mentor that remembers your engineering journey across conversations.
-
-* Context-aware conversations
-* Long-term memory
-* Practical technical guidance
-* Emotional reassurance
-* Reduced overwhelm
-
-Northstar is intentionally designed to feel calm, human, and believable — not robotic.
+### 📖 Table of Contents
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Tech Stack & Architecture](#-tech-stack--architecture)
+- [Project Structure](#-project-structure)
+- [Demo & Screenshots](#-demo--screenshots)
+- [Getting Started](#-getting-started)
+- [Usage](#-usage)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
-## 2. Weekly Direction Engine
+## ⭐ Overview
 
-AI-generated weekly guidance tailored to the student’s current phase.
+Northstar is an AI mentorship ecosystem built for ambitious engineering students who lack access to strong technical peer circles, industry exposure, and personalized guidance.
 
-Includes:
+Instead of acting like a generic chatbot, Northstar functions as a trusted elder sibling—helping students navigate technical learning, project decisions, internships, hackathons, and career uncertainty through contextual, long-term mentorship.
 
-* Priority recommendations
-* Project focus suggestions
-* Learning adjustments
-* Skill recommendations
-* Realistic next steps
+The platform combines:
 
-Instead of giving infinite options, Northstar narrows focus.
+- Personalised AI Mentor
+- Weekly Direction Engine
+- Opportunity Radar
+- Growth Timeline
+
+to help students focus on the right next step instead of getting lost in information overload.
+---
+
+## ✨ Key Features
+
+NorthStar is built around a series of targeted features designed to address critical pain points in professional growth and career planning.
+
+*   🚀 **Interactive Growth Hub**
+    Experience a unified dashboard that visually represents your active milestones, profile completeness, and critical career paths. Designed with fluid React states and Tailwind CSS transitions, the growth hub keeps you aligned with your primary professional goals.
+
+*   🗺️ **Dynamic Career Timelines**
+    Visualize your long-term and short-term career pathways. The timeline interface maps out logical progression steps, skill sets, and experience requirements, converting ambitious career goals into actionable, bite-sized chronological milestones.
+
+*   💬 **Guided Direction & AI-Assisted Consultation**
+    Leverage modern intelligent assistance using native conversational interfaces and targeted pathfinding systems. Connected directly through specific `/api/chat` and `/api/direction` endpoints, users can query path structures, resolve development blocks, and ask career questions in real time.
+
+*   🤝 **Mentorship Connections**
+    Bridge the gap between expert advice and personal growth. The built-in mentoring module helps users document connections, manage communication logs, and build pathways toward meaningful 1-on-1 relationships with domain experts.
+
+*   💼 **Opportunities Pipeline**
+    Organize and keep track of active job openings, learning courses, open-source projects, and internal promotions. This tool helps you organize all prospective career-changing developments inside a clean, actionable status-tracking board.
+
+*   🔒 **Secure Onboarding & Authentication Guarding**
+    Ensure all private career roadmaps, personal mentor logs, and career notes are secured using robust authentication. With automatic middleware routing and protected-route wrapping, your sensitive professional metadata remains private, customized, and protected.
 
 ---
 
-## 3. Opportunity Radar
+## 🛠️ Tech Stack & Architecture
 
-Curated opportunities matched intelligently to user interests and skill level.
+NorthStar is built on a modern TypeScript stack, using a client-centric component architecture optimized for fast load times, robust data-flow management, and responsive interfaces.
 
-Examples:
-
-* Hackathons
-* Internships
-* Fellowships
-* Open-source programs
-* Student communities
-
-Each recommendation explains:
-
-* Why it matches the user
-* Difficulty level
-* Suggested preparation
+| Technology | Purpose | Why it was Chosen |
+| :--- | :--- | :--- |
+| **Next.js (`^16.2.6`)** | Core Web Framework | Provides seamless App Router page transitions, optimized server-rendered components, built-in API routing mechanisms, and fast build processes. |
+| **React (`^18.2.0`)** | UI Rendering & Component Lifecycle | Leverages robust state encapsulation, efficient virtual DOM diffing, and declarative UI patterns essential for complex interactive dashboards. |
+| **TypeScript (`^5.3.0`)** | Static Typing & Code Safety | Guarantees strict type safety across database schemas, service layers, and React props, avoiding runtime bugs in career metrics computations. |
+| **Tailwind CSS (`^3.3.0`)** | Declarative Utility Styling | Allows rapid visual construction of highly custom, themeable dashboard layouts, interactive state effects, and fully responsive layouts. |
+| **Zustand (`^4.4.0`)** | Global State Store | A lightweight, fast, and hook-based state management library that stores local sessions, user filters, and sidebar states without boilerplate. |
+| **Framer Motion (`^10.16.0`)**| Micro-interactions & Animations | Adds smooth, physical transitions to timeline nodes, collapsible sidebar drawers, and list updates to improve overall user engagement. |
+| **Supabase Client (`^2.38.0`)**| Real-Time DB & Auth Client | Enables rapid integration with user authentication states, row-level security logic, and direct communication with secure relational storage. |
+| **Lucide React (`^0.294.0`)** | Contextual Iconography | Supplies lightweight, highly recognizable, and scalable vector icons for dashboards, timelines, and profile interfaces. |
 
 ---
 
-## 4. Progress Timeline
+## 📁 Project Structure
 
-A visual timeline of growth over time.
+Below is the verified structural mapping of the NorthStar repository. The codebase separates layout routing, stateful React logic, structural services, and database schemas for maximum modularity and maintainability.
 
-Tracks:
+```
+yashvicoded-NorthStar-f497efe/
 
-* Projects
-* Wins
-* Goals
-* Milestones
-* Career progression
-
-Students can literally see how far they’ve come.
-
----
-
-## 5. Conversational Onboarding
-
-A warm onboarding flow that builds a “Journey Snapshot” profile.
-
-Northstar learns:
-
-* Current skill level
-* Tech interests
-* Learning phase
-* Career goals
-* Biggest struggles
-* Confidence level
-
-This becomes the foundation for personalized mentorship.
-
----
-
-# 🎨 Product Philosophy
-
-Northstar is designed to feel:
-
-* Calm
-* Premium
-* Human
-* Minimal
-* Warm
-* Founder-grade
-* Emotionally intelligent
-
-### Design Inspiration
-
-* Linear
-* Notion
-* Arc Browser
-* Raycast
-* Apple
-* Vercel
-
-The experience prioritizes:
-
-* excellent spacing
-* subtle motion
-* soft shadows
-* breathable layouts
-* polished interactions
-
----
-
-# ⚙️ Tech Stack
-
-| Category   | Technology               |
-| ---------- | ------------------------ |
-| Framework  | Next.js 14 (App Router)  |
-| Language   | TypeScript               |
-| Styling    | Tailwind CSS + shadcn/ui |
-| Animations | Framer Motion            |
-| Backend    | Supabase                 |
-| AI         | OpenAI API               |
-| Deployment | Vercel                   |
-
----
-
-# 📂 Project Structure
-
-```bash
-src/
-├── app/
-│   ├── layout.tsx
-│   ├── page.tsx
-│   ├── auth/
-│   ├── onboarding/
-│   ├── dashboard/
-│   └── api/
-│
-├── components/
-│   ├── ui/
-│   ├── mentor/
-│   ├── dashboard/
-│   └── onboarding/
-│
-├── lib/
-├── services/
-├── hooks/
-├── constants/
-├── types/
-└── globals.css
+├── 📁 src/                          # Application source directory
+│   ├── 📄 middleware.ts             # Global Next.js route protection and session verification
+│   ├── 📄 schema.sql                # Relational database layout definitions
+│   ├── 📄 globals.css               # Global styling, Tailwind directives, and custom root variables
+│   ├── 📁 constants/                # Immutable layout strings and static values
+│   │   └── 📄 index.ts              # Exported menu paths, constants, and global variables
+│   ├── 📁 hooks/                    # Reusable stateful custom React hooks
+│   │   └── 📄 useAuth.ts            # Encapsulated authentication hook handling sessions
+│   ├── 📁 app/                      # Next.js App Router routing framework
+│   │   ├── 📄 layout.tsx            # Global application theme wrapper
+│   │   ├── 📄 page.tsx              # Public informational landing page
+│   │   ├── 📁 api/                  # Serverless API endpoints
+│   │   │   ├── 📁 direction/        # Core path calculation endpoint
+│   │   │   │   └── 📄 route.ts      # Processes career path recommendations
+│   │   │   └── 📁 chat/             # Chat execution logic endpoint
+│   │   │       └── 📄 route.ts      # Processes dialogue interactions
+│   │   ├── 📁 dashboard/            # Authenticated user dashboard section
+│   │   │   ├── 📄 layout.tsx        # Dashboard layout (Sidebar, Header wrapper)
+│   │   │   ├── 📄 page.tsx          # Central dashboard metric index overview
+│   │   │   ├── 📁 opportunities/    # Opportunity exploration tool
+│   │   │   │   └── 📄 page.tsx      # Main opportunities tracker page
+│   │   │   ├── 📁 mentor/           # Mentorship communication network
+│   │   │   │   └── 📄 page.tsx      # Mentoring session manager page
+│   │   │   ├── 📁 timeline/         # Visual chronological career roadmaps
+│   │   │   │   └── 📄 page.tsx      # Dynamic timeline progression board
+│   │   │   ├── 📁 direction/        # Guided pathfinding tool
+│   │   │   │   └── 📄 page.tsx      # Diagnostic questions & active guide page
+│   │   │   └── 📁 profile/          # User professional metrics
+│   │   │       └── 📄 page.tsx      # Profile configuration and summary page
+│   │   ├── 📁 auth/                 # Signin & Registration flow pages
+│   │   │   ├── 📁 signup/           # Direct registration workspace
+│   │   │   │   └── 📄 page.tsx      # SignUp page with form validation
+│   │   │   ├── 📁 signin/           # Secure system login workspace
+│   │   │   │   └── 📄 page.tsx      # SignIn page with error alerts
+│   │   │   └── 📁 callback/         # Authentication provider webhook target
+│   │   │       └── 📄 route.ts      # Verifies incoming auth codes and maps sessions
+│   │   └── 📁 onboarding/           # New account configuration stage
+│   │       └── 📄 page.tsx          # Step-by-step preference diagnostic page
+│   ├── 📁 lib/                      # Core utility wrappers and SDK instances
+│   │   ├── 📄 utils.ts              # Structural utility wrappers (e.g., clsx, tailwind-merge)
+│   │   ├── 📄 supabase.ts           # Singleton Supabase database client instance
+│   │   ├── 📄 auth-content.tsx      # Global React Context providing auth status
+│   │   └── 📁 supabase/             # Helper utilities for database interaction
+│   │       └── 📄 route.ts          # Server-safe Supabase route handlers
+│   ├── 📁 services/                 # Layer interfacing app with Supabase queries
+│   │   ├── 📄 profile.ts            # Read/Write profiles data mapping
+│   │   ├── 📄 timeline.ts           # Career roadmap node state updates
+│   │   ├── 📄 opportunities.ts      # CRUD operations for matching job boards
+│   │   ├── 📄 mentor.ts             # Registers mentorship queries & messages
+│   │   └── 📄 direction.ts          # Integrates directional outputs & recommendations
+│   ├── 📁 components/               # High-integrity atomic UI elements
+│   │   ├── 📄 protected-route.tsx   # Client Guard wrapping protected layout pages
+│   │   └── 📁 ui/                   # Modular design system elements (shadcn-inspired)
+│   │       ├── 📄 button.tsx        # Standardized functional button interface
+│   │       ├── 📄 input.tsx         # Styled forms input element text area
+│   │       └── 📄 card.tsx          # Configurable structural container card
+│   └── 📁 types/                    # System-wide TypeScript interface lists
+│       └── 📄 index.ts              # Database mappings and user data definitions
+├── 📄 .eslintrc.json                # Custom linter rule specifications
+├── 📄 .prettierrc                   # Universal stylistic code layout configs
+├── 📄 tailwind.config.ts            # Custom tailwind layout extensions
+├── 📄 tsconfig.json                 # Type checker compilation setups
+├── 📄 postcss.config.js             # Preprocessor utility configuration
+├── 📄 next.config.js                # Core Next.js execution parameters
+├── 📄 package.json                  # Manifest mapping scripts & dependencies
+├── 📄 package-lock.json             # Precise package version verification tree
+├── 📄 QUICKSTART.md                 # Brief setup reference guide
+├── 📄 DEVELOPMENT.md                # Local development instructions
+├── 📄 SETUP_COMPLETE.md             # Integration testing milestones checklists
+└── 📄 .gitignore                    # Explicit untracked files system checklist
 ```
 
 ---
 
-# 🚀 Getting Started
+## 📸 Demo & Screenshots
 
-## Prerequisites
+Explore the structural visual framework of the **NorthStar** interface. This collection presents the responsive dashboard design, layout features, interactive timelines, and step-by-step career path guides.
 
-* Node.js 18+
-* npm / yarn
-* Supabase project
-* OpenAI API key
+## 🖼️ Screenshots
+
+  <img src="https://placehold.co/800x450/111827/ffffff?text=NorthStar+Dashboard+Overview" alt="NorthStar Dashboard" width="100%">
+  <em><p align="center">Figure 1: The main Dashboard index, featuring active progression summaries, dynamic metrics, and direct alerts.</p></em>
+
+  <img src="https://placehold.co/800x450/1f2937/ffffff?text=Dynamic+Career+Timeline" alt="Dynamic Career Timeline" width="100%">
+  <em><p align="center">Figure 2: The interactive career timeline, providing a comprehensive historical view and path planning nodes.</p></em>
+
+  <img src="https://placehold.co/800x450/111827/ffffff?text=Mentorship+Matchmaking+and+Chat" alt="Mentorship Interface" width="100%">
+  <em><p align="center">Figure 3: Interactive mentor communications interface with direct messaging features and progress logs.</p></em>
+
+  <img src="https://placehold.co/800x450/1f2937/ffffff?text=Career+Direction+Finder+and+AI+Advisor" alt="AI Career Guidance" width="100%">
+  <em><p align="center">Figure 4: The Direction Finder utility screen, where interactive diagnostics outline potential next career milestones.</p></em>
+
+  <img src="https://placehold.co/800x450/111827/ffffff?text=Opportunities+Discovery+and+Pipeline+Board" alt="Opportunities Board" width="100%">
+  <em><p align="center">Figure 5: Opportunities dashboard tracking applications, open postings, and skill-acquisition processes.</p></em>
+
+  <img src="https://placehold.co/800x450/1f2937/ffffff?text=Profile+and+Onboarding+Wizard" alt="User Onboarding Wizard" width="100%">
+  <em><p align="center">Figure 6: Step-by-step onboarding process, capturing skills, preferences, and long-term targets to build user models.</p></em>
+
+## 🎬 Video Demos
+
+  <a href="https://example.com/your-video-link-1" target="_blank">
+    <img src="https://placehold.co/800x450/1f1e2e/c5a8ff?text=Watch+NorthStar+Interactive+Walkthrough" alt="Interactive System Walkthrough" width="100%">
+  </a>
+  <em><p align="center">Watch an interactive video walkthrough of the onboarding workspace, dynamic path rendering, and mentor interface.</p></em>
 
 ---
 
-## Installation
+## 🚀 Getting Started
 
-### 1. Clone the repository
+Follow these step-by-step instructions to set up, build, and run a local development instance of NorthStar on your machine.
 
-```bash
-git clone <repo-url>
-cd northstar
+### Prerequisites
+
+Ensure you have the following system resources installed before starting your installation process:
+- **Node.js** (v18.0.0 or higher is highly recommended)
+- **NPM** package manager (comes bundled with Node.js)
+- **TypeScript environment** (supported globally or via internal package scope)
+
+### Installation Steps
+
+1.  **Clone the Repository**
+    Clone the codebase locally to your target environment using standard Git procedures:
+    ```bash
+    git clone https://github.com/yashvicoded/NorthStar.git
+    cd NorthStar
+    ```
+
+2.  **Install Required Dependencies**
+    Execute the installation script using npm to download and link all required package configurations:
+    ```bash
+    npm install
+    ```
+
+3.  **Run Compilation Verification & Lint Check**
+    Before executing the application locally, verify your environment configurations and lint parameters:
+    ```bash
+    # Run the lint process to ensure style guide compliance
+    npm run lint
+
+    # Run TypeScript validation rules
+    npm run type-check
+    ```
+
+4.  **Execute the Local Development Environment**
+    Launch the internal Next.js development server to compile and run the frontend engine:
+    ```bash
+    npm run dev
+    ```
+    Once compilation completes, open your browser and navigate to the local portal:
+    *   **Local URL:** `http://localhost:3000`
+
+5.  **Build and Export for Production**
+    To compile a fast, production-optimized output build, execute the Next.js bundle compiler:
+    ```bash
+    # Generate the optimized production bundle
+    npm run build
+
+    # Execute the compiled server locally
+    npm run start
+    ```
+
+---
+
+## 🔧 Usage
+
+The NorthStar application has been structured to make professional mapping, goal setting, and mentor logging simple and intuitive.
+
+### 1. User Authentication & Onboarding Flow
+Upon accessing the platform, users must create a profile to start tracking goals:
+- Go to the public entry screen and navigate to **Sign Up** (`/auth/signup`).
+- Complete your login step; this directs you into the structured **Onboarding Wizard** (`/onboarding`).
+- Onboarding gathers your core competency metrics, targets, and selected focus industries, constructing a custom profile in `schema.sql`.
+
+### 2. Utilizing the Core Navigation Dashboard
+The authenticated workspace houses five focus tools configured inside `/app/dashboard/`:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                           NorthStar                             │
+├───────────────┬─────────────────────────────────────────────────┤
+│ 🧭 Overview   │ Welcome back! Dynamic Progress Tracker          │
+│ 🗺️ Timeline   │ Step-by-step career path planning maps         │
+│ 🤝 Mentoring  │ Match details & communication portal            │
+│ 💼 Jobs       │ Opportunity Pipelines & Activity Logs           │
+│ 🔍 Direction  │ Path Finder Diagnostic & AI Consultations       │
+└───────────────┴─────────────────────────────────────────────────┘
 ```
 
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Configure environment variables
-
-```bash
-cp .env.local.example .env.local
-```
-
-Add the following:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-OPENAI_API_KEY=
-NEXT_PUBLIC_APP_URL=
-```
+*   **Dynamic Timelines (`/dashboard/timeline`):** Add, update, or remove target milestones. The frontend visualizer automatically updates your chronological career map with Framer Motion animations.
+*   **Intelligent Path Finding (`/dashboard/direction`):** Submit your career path questions to receive automated diagnostic direction, powered behind the scenes by Next.js API route actions.
+*   **Opportunities Tracker (`/dashboard/opportunities`):** Maintain a Kanban-style pipeline of prospective job openings, course details, and active certificates.
+*   **Mentorship Space (`/dashboard/mentor`):** Select target career mentors and schedule updates to maintain regular progress logging.
 
 ---
 
-### 4. Start development server
+## 🤝 Contributing
 
-```bash
-npm run dev
-```
+We welcome contributions to improve NorthStar! Your input helps make this project better for everyone.
 
-Visit:
+### How to Contribute
 
-```txt
-http://localhost:3000
-```
+1. **Fork the repository** - Click the 'Fork' button at the top right of this page
+2. **Create a feature branch** 
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Make your changes** - Improve code, documentation, or features
+4. **Test thoroughly** - Ensure all functionality works as expected
+   ```bash
+   npm run type-check
+   # AND
+   npm run lint
+   ```
+5. **Commit your changes** - Write clear, descriptive commit messages
+   ```bash
+   git commit -m 'Add: Amazing new feature that does X'
+   ```
+6. **Push to your branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+7. **Open a Pull Request** - Submit your changes for review
 
----
+### Development Guidelines
 
-# 🧩 MVP Features
+- ✅ Follow the existing code style and conventions
+- 📝 Add comments for complex logic and algorithms
+- 🧪 Write tests for new features and bug fixes
+- 📚 Update documentation for any changed functionality
+- 🔄 Ensure backward compatibility when possible
+- 🎯 Keep commits focused and atomic
 
-* ✅ Landing Page
-* ✅ Authentication
-* ✅ Dashboard Shell
-* ✅ Mentor Chat
-* ✅ Onboarding Flow
-* ✅ Weekly Direction
-* ✅ Opportunity Radar
-* ✅ Progress Timeline
-* ⏳ AI Integration
-* ⏳ Database Optimization
-* ⏳ Final UX Polish
+### Ideas for Contributions
 
----
+We're looking for help with:
 
-# 🗄️ Database Overview
+- 🐛 **Bug Fixes:** Report and fix bugs
+- ✨ **New Features:** Implement requested features from issues
+- 📖 **Documentation:** Improve README, add tutorials, create examples
+- 🎨 **UI/UX:** Enhance user interface and experience
+- ⚡ **Performance:** Optimize code and improve efficiency
+- 🌐 **Internationalization:** Add multi-language support
+- 🧪 **Testing:** Increase test coverage
+- ♿ **Accessibility:** Make the project more accessible
 
-### Core Tables
+### Code Review Process
 
-* Users
-* UserProfiles
-* Threads
-* Messages
-* Opportunities
-* TimelineEvents
-* WeeklyDirections
+- All submissions require review before merging
+- Maintainers will provide constructive feedback
+- Changes may be requested before approval
+- Once approved, your PR will be merged and you'll be credited
 
-Built on **Supabase PostgreSQL** with persistent user memory and structured mentorship data.
+### Questions?
 
----
-
-# 🤖 Mentor Personality System
-
-Northstar’s mentor is intentionally designed to avoid sounding like a generic AI assistant.
-
-## The mentor SHOULD:
-
-* Remember past conversations
-* Reduce confusion
-* Encourage building over consuming
-* Be calm and practical
-* Guide realistically
-* Support emotionally without sounding fake
-
-## The mentor SHOULD NOT:
-
-* Sound corporate
-* Give generic motivational advice
-* Overwhelm users with options
-* Push endless tutorials
-* Feel robotic
+Feel free to open an issue for any questions or concerns. We're here to help!
 
 ---
 
-# ⚡ Performance & UX
+## 📝 License
 
-* Responsive design
-* Smooth Framer Motion animations
-* Dark/light mode
-* Accessible UI components
-* Optimized page loads
-* Elegant loading states
-* Modern app-shell architecture
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for complete details.
 
----
+### What this means:
 
-# 🌍 Vision Beyond the MVP
-
-Northstar is ultimately aiming to become:
-
-> The AI career operating system for ambitious students who never had access to elite mentorship.
-
-Future ideas:
-
-* Voice mentorship
-* AI memory graph
-* Peer circles
-* Resume intelligence
-* Project reviews
-* Placement preparation
-* Personalized engineering roadmaps
-* Founder & research tracks
+- ✅ **Commercial use:** You can use this project commercially
+- ✅ **Modification:** You can modify the code
+- ✅ **Distribution:** You can distribute this software
+- ✅ **Private use:** You can use this project privately
+- ⚠️ **Liability:** The software is provided "as is", without warranty
+- ⚠️ **Trademark:** This license does not grant trademark rights
 
 ---
 
-```bash
-vercel deploy
-```
-
----
-
-# 🤝 Contributing
-
-This project was built as a hackathon MVP focused on:
-
-* speed
-* polish
-* emotional UX
-* product thinking
-
-Contributions, ideas, and feedback are welcome.
-
----
-
-# 📜 License
-
-Proprietary — Northstar MVP
-
----
-
-
-
-### ✦ Built for students trying to figure it all out ✦
-
+<p align="center">Made with ❤️ by the NorthStar Team</p>
+<p align="center">
+  <a href="#">⬆️ Back to Top</a>
+</p>
